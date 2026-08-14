@@ -317,4 +317,11 @@ pub fn mixHsl(self: Color, other: Color, ratio: f64) Color
 
 Grayscale using perceptual luminance. Mix two colors in HSL space.
 
+### monochromatic
+
+```zig
+pub fn monochromatic(self: Color, count: u8) [8]Color
+```
+
+Returns up to 8 monochromatic variations of the color (varying lightness).
 

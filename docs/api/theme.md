@@ -15,6 +15,8 @@ pub const Theme = struct {
     info: Color,
     text: Color,
     muted: Color,
+    background: Color,
+    surface: Color,
 };
 ```
 
@@ -36,7 +38,27 @@ pub fn init(
 ) Theme
 ```
 
-Creates a new Theme with the given colors.
+Creates a new Theme with the given colors. `background` defaults to `text`, `surface` defaults to `muted`.
+
+### Theme.initWithBackground
+
+```zig
+pub fn initWithBackground(
+    name: []const u8,
+    primary: Color,
+    secondary: Color,
+    success: Color,
+    warning: Color,
+    err: Color,
+    info: Color,
+    text: Color,
+    muted: Color,
+    background: Color,
+    surface: Color,
+) Theme
+```
+
+Creates a new Theme with explicit `background` and `surface` colors.
 
 ## Built-in Themes
 

@@ -4,25 +4,25 @@ All 17 built-in themes with their color palettes.
 
 ## Available Themes
 
-| Theme | Style |
-|-------|-------|
-| `dark` | Default dark theme |
-| `light` | Default light theme |
-| `dracula` | Dracula color scheme |
-| `nord` | Nord color scheme |
-| `monokai` | Monokai color scheme |
-| `tokyo_night` | Tokyo Night color scheme |
-| `gruvbox` | Gruvbox color scheme |
-| `solarized` | Solarized color scheme |
-| `rose_pine` | Rose Pine color scheme |
-| `catppuccin` | Catppuccin color scheme |
-| `github` | GitHub color scheme |
-| `one_dark` | One Dark color scheme |
-| `material` | Material color scheme |
-| `palenight` | Palenight color scheme |
-| `everforest` | Everforest color scheme |
-| `kanagawa` | Kanagawa color scheme |
-| `cyberdream` | Cyberdream color scheme |
+| Theme | Constant |
+|-------|----------|
+| `dark` | `tint.themes.dark_theme` |
+| `light` | `tint.themes.light_theme` |
+| `dracula` | `tint.themes.dracula_theme` |
+| `nord` | `tint.themes.nord_theme` |
+| `monokai` | `tint.themes.monokai_theme` |
+| `tokyo_night` | `tint.themes.tokyo_night_theme` |
+| `gruvbox` | `tint.themes.gruvbox_theme` |
+| `solarized` | `tint.themes.solarized_theme` |
+| `rose_pine` | `tint.themes.rose_pine_theme` |
+| `catppuccin` | `tint.themes.catppuccin_theme` |
+| `github` | `tint.themes.github_theme` |
+| `one_dark` | `tint.themes.one_dark_theme` |
+| `material` | `tint.themes.material_theme` |
+| `palenight` | `tint.themes.palenight_theme` |
+| `everforest` | `tint.themes.everforest_theme` |
+| `kanagawa` | `tint.themes.kanagawa_theme` |
+| `cyberdream` | `tint.themes.cyberdream_theme` |
 
 ## Theme Structure
 
@@ -30,22 +30,16 @@ Each theme provides colors for:
 
 | Property | Description |
 |----------|-------------|
-| `fg` | Default foreground |
-| `bg` | Default background |
-| `comment` | Comments |
-| `keyword` | Keywords |
-| `string` | Strings |
-| `number` | Numbers |
-| `function_name` | Function names |
-| `variable` | Variables |
-| `type` | Types |
-| `operator` | Operators |
-| `err_style` | Errors |
-| `warning` | Warnings |
-| `success` | Success |
-| `info` | Information |
-| `accent` | Accent color |
-| `muted` | Muted text |
+| `primary` | Primary color |
+| `secondary` | Secondary color |
+| `success` | Success messages |
+| `warning` | Warning messages |
+| `err` | Error messages |
+| `info` | Information messages |
+| `text` | Default text color |
+| `muted` | Muted/secondary text |
+| `background` | Background color |
+| `surface` | Surface color |
 
 ## Usage
 
@@ -53,18 +47,33 @@ Each theme provides colors for:
 const tint = @import("tint");
 
 // Use Tokyo Night theme
-const tokyo = tint.themes.tokyo_night;
+const tokyo = tint.themes.tokyo_night_theme;
 std.debug.print("{s}Error!{s}\n", .{
-    tint.fg(tokyo.err_style),
+    tint.fg(tokyo.err),
     tint.reset,
 });
 
 // Use Gruvbox
-const gruvbox = tint.themes.gruvbox;
+const gruvbox = tint.themes.gruvbox_theme;
 std.debug.print("{s}Success!{s}\n", .{
     tint.fg(gruvbox.success),
     tint.reset,
 });
+
+// Create a custom theme with background/surface
+const custom = tint.Theme{
+    .name = "custom",
+    .primary = tint.hex(0x6366F1),
+    .secondary = tint.hex(0x8B5CF6),
+    .success = tint.hex(0x10B981),
+    .warning = tint.hex(0xF59E0B),
+    .err = tint.hex(0xEF4444),
+    .info = tint.hex(0x3B82F6),
+    .text = tint.hex(0xE5E7EB),
+    .muted = tint.hex(0x6B7280),
+    .background = tint.hex(0x1F2937),
+    .surface = tint.hex(0x374151),
+};
 ```
 
 ## Running
@@ -75,4 +84,4 @@ zig build run-themes_extended
 
 ## Source
 
-See [`examples/themes_extended.zig`](https://github.com/muhammad-fiaz/tint.zig/blob/main/examples/themes_extended.zig) for the complete example.
+{{Include:examples/themes_extended.zig}}

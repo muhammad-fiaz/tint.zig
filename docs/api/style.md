@@ -201,3 +201,59 @@ pub fn highlight(fg: Color, bg: Color) Style
 ```
 
 Bold text with given foreground and background colors.
+
+### tint.presets.strikethrough_text
+
+```zig
+pub fn strikethrough_text(fg: Color) Style
+```
+
+Strikethrough text with given foreground color.
+
+### tint.presets.blink_text
+
+```zig
+pub fn blink_text(fg: Color) Style
+```
+
+Blinking text with given foreground color.
+
+### tint.presets.reverse_text
+
+```zig
+pub fn reverse_text(fg: Color) Style
+```
+
+Reverse video text with given foreground color.
+
+### tint.presets.hidden_text
+
+```zig
+pub fn hidden_text(fg: Color) Style
+```
+
+Hidden text with given foreground color.
+
+### tint.presets.overlined
+
+```zig
+pub fn overlined(fg: Color) Style
+```
+
+Overlined text with given foreground color.
+
+### tint.presets.framed
+
+```zig
+pub fn framed(fg: Color) Style
+```
+
+Framed text with given foreground color.
+
+### tint.presets.encircled
+
+```zig
+pub fn encircled(fg: Color) Style
+```
+
+Encircled text with given foreground color.

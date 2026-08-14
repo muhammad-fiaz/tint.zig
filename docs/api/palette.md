@@ -18,6 +18,22 @@ pub const ansi16_names = [16][]const u8{ ... };
 
 Names for the ANSI 16-color palette.
 
+### ansi88
+
+```zig
+pub const ansi88 = [88]AnsiRgb{ ... };
+```
+
+Full ANSI 88-color palette as RGB values (comptime-generated). Includes 16 standard colors, 8x8x8 color cube (indices 16-79), and 8 grayscale ramp (indices 80-87).
+
+### ansi88_names
+
+```zig
+pub const ansi88_names = [88][]const u8{ ... };
+```
+
+Names for the ANSI 88-color palette.
+
 ### ansi256
 
 ```zig
@@ -51,6 +67,17 @@ Creates an ANSI 256 color from 6x6x6 RGB cube coordinates.
 - `r`, `g`, `b` must be in range 0-5
 - Returns the ANSI 256 index (16-231)
 
+### rgb8
+
+```zig
+pub fn rgb8(r: u8, g: u8, b: u8) struct { index: u8 }
+```
+
+Creates an ANSI 88 color from 8x8x8 RGB cube coordinates.
+
+- `r`, `g`, `b` must be in range 0-7
+- Returns the ANSI 88 index (16-79)
+
 ### gray
 
 ```zig
@@ -61,6 +88,17 @@ Creates an ANSI 256 grayscale color.
 
 - `level` must be in range 0-23 (maps to indices 232-255)
 - Returns the ANSI 256 index
+
+### gray88
+
+```zig
+pub fn gray88(level: u8) struct { index: u8 }
+```
+
+Creates an ANSI 88 grayscale color.
+
+- `level` must be in range 0-7 (maps to indices 80-87)
+- Returns the ANSI 88 index
 
 ### ramp
 

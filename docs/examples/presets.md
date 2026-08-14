@@ -6,17 +6,17 @@ tint.zig includes 17 built-in preset styles for common use cases.
 
 | Preset | Description |
 |--------|-------------|
-| `err_style` | Error messages (red) |
-| `warning` | Warning messages (yellow) |
-| `success` | Success messages (green) |
+| `err_style` | Error messages (bold red) |
+| `warning` | Warning messages (bold yellow) |
+| `success` | Success messages (bold green) |
 | `info` | Information messages (cyan) |
-| `debug` | Debug output (gray) |
-| `link` | Hyperlinks (blue) |
-| `code` | Inline code |
-| `header` | Section headers |
-| `muted` | Muted/secondary text |
-| `highlight` | Highlighted text |
-| `strikethrough_text` | Deleted text |
+| `debug` | Debug output (dim gray) |
+| `link` | Hyperlinks (underlined blue) |
+| `code` | Inline code (with background) |
+| `header` | Section headers (bold underlined) |
+| `muted` | Muted/secondary text (dim) |
+| `highlight` | Highlighted text (bold with background) |
+| `strikethrough_text` | Deleted text (strikethrough) |
 | `blink_text` | Blinking text |
 | `reverse_text` | Reverse video |
 | `hidden_text` | Hidden text |
@@ -43,6 +43,14 @@ const code = tint.presets.code(
     .{ .ansi4 = .black },
 );
 std.debug.print("{s} code {s}\n", .{ code.toAnsi(), tint.reset });
+
+// Strikethrough
+const del = tint.presets.strikethrough_text(.{ .ansi4 = .red });
+std.debug.print("{s}Deleted text{s}\n", .{ del.toAnsi(), tint.reset });
+
+// Framed
+const frame = tint.presets.framed(.{ .ansi4 = .blue });
+std.debug.print("{s}Framed text{s}\n", .{ frame.toAnsi(), tint.reset });
 ```
 
 ## Running
@@ -53,4 +61,4 @@ zig build run-presets
 
 ## Source
 
-See [`examples/presets.zig`](https://github.com/muhammad-fiaz/tint.zig/blob/main/examples/presets.zig) for the complete example.
+{{Include:examples/presets.zig}}
