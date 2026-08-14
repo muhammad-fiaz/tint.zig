@@ -201,6 +201,7 @@ pub fn main() void {
 | Palettes | Color palette access | [`examples/palettes.zig`](examples/palettes.zig) |
 | Themes | Theme system | [`examples/themes.zig`](examples/themes.zig) |
 | Themes Extended | All 16 built-in themes | [`examples/themes_extended.zig`](examples/themes_extended.zig) |
+| Gradient | Gradient text via lerp, fade, palette primitives | [`examples/gradient.zig`](examples/gradient.zig) |
 | Composition | Style composition | [`examples/composition.zig`](examples/composition.zig) |
 | Complete | Full feature showcase | [`examples/complete.zig`](examples/complete.zig) |
 

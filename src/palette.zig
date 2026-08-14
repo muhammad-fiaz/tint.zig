@@ -52,7 +52,7 @@ pub const ansi256 = generateAnsi256();
 fn generateAnsi256() [256]AnsiRgb {
     var palette_arr: [256]AnsiRgb = undefined;
     palette_arr[0] = .{ .r = 0, .g = 0, .b = 0 };
-    palette_arr[1] = .{ .r = 0, .g = 0, .b = 0 };
+    palette_arr[1] = .{ .r = 170, .g = 0, .b = 0 };
     palette_arr[2] = .{ .r = 0, .g = 170, .b = 0 };
     palette_arr[3] = .{ .r = 170, .g = 170, .b = 0 };
     palette_arr[4] = .{ .r = 0, .g = 0, .b = 170 };

@@ -14,6 +14,7 @@ tint.zig includes comprehensive examples demonstrating all features.
 | [Color Analysis](/examples/color-analysis) | Luminance, contrast |
 | [CMYK](/examples/cmyk) | CMYK print colors |
 | [Themes Extended](/examples/themes-extended) | All 17 themes |
+| [Gradient](/examples/gradient) | Gradient text via lerp, fade, palette primitives |
 | [Complete Demo](/examples/complete) | Full feature demonstration |
 
 ## Running Examples
