@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://muhammad-fiaz.github.io/tint.zig/</loc><priority>1.0</priority></url>
+  <url><loc>https://muhammad-fiaz.github.io/tint.zig/guide/getting-started</loc><priority>0.9</priority></url>
+  <url><loc>https://muhammad-fiaz.github.io/tint.zig/guide/installation</loc><priority>0.8</priority></url>
+  <url><loc>https://muhammad-fiaz.github.io/tint.zig/guide/colors</loc><priority>0.9</priority></url>
+  <url><loc>https://muhammad-fiaz.github.io/tint.zig/guide/styles</loc><priority>0.9</priority></url>
+  <url><loc>https://muhammad-fiaz.github.io/tint.zig/guide/palettes</loc><priority>0.8</priority></url>
+  <url><loc>https://muhammad-fiaz.github.io/tint.zig/guide/themes</loc><priority>0.8</priority></url>
+  <url><loc>https://muhammad-fiaz.github.io/tint.zig/api/</loc><priority>0.9</priority></url>
+  <url><loc>https://muhammad-fiaz.github.io/tint.zig/api/color</loc><priority>0.8</priority></url>
+  <url><loc>https://muhammad-fiaz.github.io/tint.zig/api/style</loc><priority>0.8</priority></url>
+  <url><loc>https://muhammad-fiaz.github.io/tint.zig/api/palette</loc><priority>0.7</priority></url>
+  <url><loc>https://muhammad-fiaz.github.io/tint.zig/api/theme</loc><priority>0.7</priority></url>
+  <url><loc>https://muhammad-fiaz.github.io/tint.zig/examples/</loc><priority>0.9</priority></url>
+  <url><loc>https://muhammad-fiaz.github.io/tint.zig/examples/basic</loc><priority>0.8</priority></url>
+  <url><loc>https://muhammad-fiaz.github.io/tint.zig/examples/ansi16</loc><priority>0.8</priority></url>
+  <url><loc>https://muhammad-fiaz.github.io/tint.zig/examples/bright</loc><priority>0.7</priority></url>
+  <url><loc>https://muhammad-fiaz.github.io/tint.zig/examples/ansi256</loc><priority>0.8</priority></url>
+  <url><loc>https://muhammad-fiaz.github.io/tint.zig/examples/rgb</loc><priority>0.8</priority></url>
+  <url><loc>https://muhammad-fiaz.github.io/tint.zig/examples/hex</loc><priority>0.8</priority></url>
+  <url><loc>https://muhammad-fiaz.github.io/tint.zig/examples/hsl</loc><priority>0.7</priority></url>
+  <url><loc>https://muhammad-fiaz.github.io/tint.zig/examples/hsv</loc><priority>0.7</priority></url>
+  <url><loc>https://muhammad-fiaz.github.io/tint.zig/examples/styles</loc><priority>0.8</priority></url>
+  <url><loc>https://muhammad-fiaz.github.io/tint.zig/examples/underline-color</loc><priority>0.7</priority></url>
+  <url><loc>https://muhammad-fiaz.github.io/tint.zig/examples/palettes</loc><priority>0.7</priority></url>
+  <url><loc>https://muhammad-fiaz.github.io/tint.zig/examples/themes</loc><priority>0.7</priority></url>
+  <url><loc>https://muhammad-fiaz.github.io/tint.zig/examples/composition</loc><priority>0.7</priority></url>
+  <url><loc>https://muhammad-fiaz.github.io/tint.zig/examples/complete</loc><priority>0.8</priority></url>
+</urlset>

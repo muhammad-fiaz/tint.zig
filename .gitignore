@@ -1,0 +1,31 @@
+# Zig
+.zig-cache/
+.zig-out/
+*.exe
+*.dll
+*.so
+*.dylib
+*.o
+*.obj
+
+# Build
+zig-cache/
+zig-out/
+
+# Dependencies
+docgen-cache/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
