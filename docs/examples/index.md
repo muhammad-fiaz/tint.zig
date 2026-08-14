@@ -7,18 +7,13 @@ tint.zig includes comprehensive examples demonstrating all features.
 | Example | Description |
 |---------|-------------|
 | [Basic](/examples/basic) | Simple colored output |
-| [ANSI 16](/examples/ansi16) | Standard ANSI colors |
-| [Bright Colors](/examples/bright) | Bright ANSI colors |
-| [ANSI 256](/examples/ansi256) | 256-color palette |
-| [RGB](/examples/rgb) | TrueColor RGB |
-| [HEX](/examples/hex) | HEX color format |
-| [HSL](/examples/hsl) | HSL color model |
-| [HSV](/examples/hsv) | HSV color model |
-| [Styles](/examples/styles) | Text attributes and styling |
-| [Underline Colors](/examples/underline-color) | Extended underline colors |
-| [Palettes](/examples/palettes) | Color palettes |
-| [Themes](/examples/themes) | Theme construction |
-| [Composition](/examples/composition) | Style composition |
+| [Presets](/examples/presets) | Built-in preset styles |
+| [Color Temperature](/examples/color-temperature) | Kelvin to RGB |
+| [Color Manipulation](/examples/color-manipulation) | Lighten, darken, mix |
+| [Color Harmony](/examples/color-harmony) | Complementary, triadic |
+| [Color Analysis](/examples/color-analysis) | Luminance, contrast |
+| [CMYK](/examples/cmyk) | CMYK print colors |
+| [Themes Extended](/examples/themes-extended) | All 17 themes |
 | [Complete Demo](/examples/complete) | Full feature demonstration |
 
 ## Running Examples

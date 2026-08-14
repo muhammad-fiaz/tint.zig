@@ -7,17 +7,17 @@ pub fn main() void {
     // Standard ANSI colors
     std.debug.print("--- ANSI 4-Bit Colors ---\n", .{});
     std.debug.print("{s}Red{s} {s}Green{s} {s}Blue{s}\n", .{
-        tint.fg(.{ .ansi4 = .red }),   tint.reset,
+        tint.fg(.{ .ansi4 = .red }), tint.reset,
         tint.fg(.{ .ansi4 = .green }), tint.reset,
-        tint.fg(.{ .ansi4 = .blue }),  tint.reset,
+        tint.fg(.{ .ansi4 = .blue }), tint.reset,
     });
 
     // Bright colors
     std.debug.print("\n--- Bright Colors ---\n", .{});
     std.debug.print("{s}Bright Red{s} {s}Bright Green{s} {s}Bright Blue{s}\n", .{
-        tint.fg(.{ .ansi4 = .bright_red }),   tint.reset,
+        tint.fg(.{ .ansi4 = .bright_red }), tint.reset,
         tint.fg(.{ .ansi4 = .bright_green }), tint.reset,
-        tint.fg(.{ .ansi4 = .bright_blue }),  tint.reset,
+        tint.fg(.{ .ansi4 = .bright_blue }), tint.reset,
     });
 
     // ANSI 256
@@ -25,7 +25,7 @@ pub fn main() void {
     std.debug.print("{s}Orange (208){s} {s}Purple (129){s} {s}Teal (49){s}\n", .{
         tint.fg(tint.ansi256(208)), tint.reset,
         tint.fg(tint.ansi256(129)), tint.reset,
-        tint.fg(tint.ansi256(49)),  tint.reset,
+        tint.fg(tint.ansi256(49)), tint.reset,
     });
 
     // RGB
@@ -60,34 +60,31 @@ pub fn main() void {
 
     // Text attributes
     std.debug.print("\n--- Text Attributes ---\n", .{});
-    std.debug.print("{s}Bold{s} {s}Italic{s} {s}Underline{s} {s}Strikethrough{s}\n", .{
-        tint.style(.{ .bold = true }),          tint.reset,
-        tint.style(.{ .italic = true }),        tint.reset,
-        tint.style(.{ .underline = true }),     tint.reset,
-        tint.style(.{ .strikethrough = true }), tint.reset,
+    std.debug.print("{s}{s}Bold{s} {s}{s}Italic{s} {s}{s}Underline{s} {s}{s}Strikethrough{s}\n", .{
+        tint.style(.{ .bold = true }).toAnsi(), "", tint.reset,
+        tint.style(.{ .italic = true }).toAnsi(), "", tint.reset,
+        tint.style(.{ .underline = true }).toAnsi(), "", tint.reset,
+        tint.style(.{ .strikethrough = true }).toAnsi(), "", tint.reset,
     });
 
     // Combined styles
     std.debug.print("\n--- Combined Styles ---\n", .{});
     std.debug.print("{s}{s}{s}{s}Bold Italic Underline Cyan{s}\n", .{
-        tint.style(.{ .bold = true }),
-        tint.style(.{ .italic = true }),
-        tint.style(.{ .underline = true }),
+        tint.style(.{ .bold = true }).toAnsi(),
+        tint.style(.{ .italic = true }).toAnsi(),
+        tint.style(.{ .underline = true }).toAnsi(),
         tint.fg(.{ .ansi4 = .cyan }),
         tint.reset,
     });
 
     // Named colors
     std.debug.print("\n--- Named Colors ---\n", .{});
-    const named_colors = [_]struct { name: []const u8, color: tint.Color }{
-        .{ .name = "Coral", .color = tint.rgb(tint.named.coral.r, tint.named.coral.g, tint.named.coral.b) },
-        .{ .name = "Teal", .color = tint.rgb(tint.named.teal.r, tint.named.teal.g, tint.named.teal.b) },
-        .{ .name = "Gold", .color = tint.rgb(tint.named.gold.r, tint.named.gold.g, tint.named.gold.b) },
-    };
-    for (named_colors) |nc| {
-        std.debug.print("{s}{s}{s} ", .{ tint.fg(nc.color), nc.name, tint.reset });
-    }
-    std.debug.print("\n", .{});
+    const coral = tint.Named.coral;
+    const teal = tint.Named.teal;
+    const gold = tint.Named.gold;
+    std.debug.print("{s}Coral{s} ", .{ tint.fg(.{ .rgb = coral }), tint.reset });
+    std.debug.print("{s}Teal{s} ", .{ tint.fg(.{ .rgb = teal }), tint.reset });
+    std.debug.print("{s}Gold{s}\n", .{ tint.fg(.{ .rgb = gold }), tint.reset });
 
     // Custom theme
     std.debug.print("\n--- Custom Theme ---\n", .{});
@@ -116,7 +113,7 @@ pub fn main() void {
 
     // Reset codes
     std.debug.print("\n--- Reset Codes ---\n", .{});
-    std.debug.print("{s}Full reset: {s}{s}\n", .{ tint.style(.{ .bold = true }), tint.reset, "" });
+    std.debug.print("{s}Full reset: {s}\n", .{ tint.style(.{ .bold = true }).toAnsi(), tint.reset });
 
     // Color manipulation
     std.debug.print("\n--- Color Manipulation ---\n", .{});

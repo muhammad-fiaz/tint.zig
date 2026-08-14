@@ -80,6 +80,10 @@ Full 24-bit color:
 ```zig
 tint.fg(tint.rgb(255, 100, 20))
 tint.bg(tint.rgb(50, 50, 100))
+
+// Convenience functions
+tint.fgRgb(255, 100, 20)
+tint.bgRgb(50, 50, 100)
 ```
 
 ## HEX Colors
@@ -87,6 +91,10 @@ tint.bg(tint.rgb(50, 50, 100))
 ```zig
 tint.fg(tint.hex(0xFF0000))
 tint.fg(tint.hex(0xFF6600))
+
+// Convenience functions
+tint.fgHex(0xFF0000)
+tint.bgHex(0xFF6600)
 ```
 
 ## HSL Colors
@@ -103,23 +111,45 @@ tint.fg(tint.hsv(0, 100, 100))    // Red
 tint.fg(tint.hsv(240, 100, 100))  // Blue
 ```
 
-## Named Colors
-
-CSS/X11-style named colors:
+## CMYK Colors
 
 ```zig
-tint.fg(.{ .rgb = tint.named.coral })
-tint.fg(.{ .rgb = tint.named.teal })
-tint.fg(.{ .rgb = tint.named.gold })
+tint.fg(tint.cmyk(0, 100, 100, 0))    // Red
+tint.fg(tint.cmyk(100, 0, 0, 0))      // Cyan
+```
+
+## Color Temperature (Kelvin)
+
+```zig
+tint.fg(tint.kelvin(2700))   // Warm candle light
+tint.fg(tint.kelvin(6500))   // Cool daylight
+tint.fg(tint.kelvin(9300))   // Very cool blue
+```
+
+## Named Colors
+
+CSS/X11-style named colors (140+):
+
+```zig
+tint.fg(.{ .rgb = tint.Named.coral })
+tint.fg(.{ .rgb = tint.Named.teal })
+tint.fg(.{ .rgb = tint.Named.gold })
+tint.fg(.{ .rgb = tint.Named.medium_purple })
 ```
 
 ## Color Conversion
 
-Convert any color to RGB:
+Convert any color to RGB, HEX, HSL, HSV, CMYK, XYZ, or Lab:
 
 ```zig
 const c = tint.hex(0xFF6600);
-const rgb_val = c.toRgb();
+const rgb_val = c.toRgb();       // RgbColor
+const hex_val = c.toHex();       // u24
+const hsl_val = c.toHsl();       // HslColor
+const hsv_val = c.toHsv();       // HsvColor
+const cmyk_val = c.toCmyk();     // CmykColor
+const xyz_val = c.toXyz();       // XyzColor
+const lab_val = c.toLab();       // LabColor
 ```
 
 ## Color Manipulation
@@ -133,4 +163,30 @@ c.desaturate(0.2)  // Desaturate by 20%
 c.invert()         // RGB complement
 c.grayscale()      // Convert to grayscale
 c.mix(other, 0.5)  // Mix 50% with another color
+c.rotate(180)      // Rotate hue by 180 degrees
+c.adjustHue(30)    // Adjust hue by 30 degrees
+```
+
+## Color Harmony
+
+```zig
+const c = tint.rgb(255, 0, 0);
+const comp = c.complementary();       // Opposite color
+const [a1, a2] = c.analogous();      // Neighboring colors
+const [t1, t2] = c.triadic();        // Three evenly spaced
+const [s1, s2] = c.splitComplementary(); // Split complement
+const [q1, q2, q3] = c.tetradic();   // Four evenly spaced
+```
+
+## Color Analysis
+
+```zig
+const c = tint.rgb(255, 0, 0);
+const is_light = c.isLight();         // Check if light
+const is_dark = c.isDark();           // Check if dark
+const lum = c.luminance();            // Relative luminance (0.0-1.0)
+const ratio = c.contrastRatio(other); // WCAG contrast ratio
+const dist = c.colorDistance(other);  // CIE76 color distance
+const nearest = c.nearestAnsi256();   // Nearest ANSI 256 index
+const mid = Color.lerp(c1, c2, 0.5); // Linear interpolation
 ```

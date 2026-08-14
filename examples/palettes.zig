@@ -4,7 +4,7 @@ const tint = @import("tint");
 pub fn main() void {
     // Color palettes
     std.debug.print("=== ANSI 16 Palette ===\n", .{});
-    var i: u8 = 0;
+    var i: usize = 0;
     while (i < 16) : (i += 1) {
         const c = tint.palette.ansi16[i];
         std.debug.print("{s}{d:3}{s} ", .{
@@ -53,7 +53,7 @@ pub fn main() void {
     std.debug.print("\n=== Grayscale Ramp ===\n", .{});
     i = 0;
     while (i < 24) : (i += 1) {
-        const result = tint.palette.gray(i);
+        const result = tint.palette.gray(@intCast(i));
         const c = tint.palette.ansi256[result.index];
         std.debug.print("{s}██{s}", .{
             tint.fg(tint.rgb(c.r, c.g, c.b)),

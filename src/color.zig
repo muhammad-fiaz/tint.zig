@@ -10,23 +10,50 @@ pub const RgbColor = struct {
         return .{ .r = r, .g = g, .b = b };
     }
 
-    threadlocal var fg_buf: [20]u8 = undefined;
-    threadlocal var bg_buf: [20]u8 = undefined;
-    threadlocal var ul_buf: [20]u8 = undefined;
+    const NUM_BUFS = 8;
+    threadlocal var fg_bufs: [NUM_BUFS][20]u8 = undefined;
+    threadlocal var fg_idx: usize = 0;
+    threadlocal var bg_bufs: [NUM_BUFS][20]u8 = undefined;
+    threadlocal var bg_idx: usize = 0;
+    threadlocal var ul_bufs: [NUM_BUFS][20]u8 = undefined;
+    threadlocal var ul_idx: usize = 0;
+
+    fn nextFg() *[20]u8 {
+        const b = &fg_bufs[fg_idx % NUM_BUFS];
+        fg_idx +%= 1;
+        return b;
+    }
+    fn nextBg() *[20]u8 {
+        const b = &bg_bufs[bg_idx % NUM_BUFS];
+        bg_idx +%= 1;
+        return b;
+    }
+    fn nextUl() *[20]u8 {
+        const b = &ul_bufs[ul_idx % NUM_BUFS];
+        ul_idx +%= 1;
+        return b;
+    }
 
     pub fn toFg(self: RgbColor) []const u8 {
-        const result = std.fmt.bufPrint(&fg_buf, "\x1b[38;2;{d};{d};{d}m", .{ self.r, self.g, self.b }) catch "\x1b[39m";
+        const result = std.fmt.bufPrint(nextFg(), "\x1b[38;2;{d};{d};{d}m", .{ self.r, self.g, self.b }) catch "\x1b[39m";
         return result;
     }
 
     pub fn toBg(self: RgbColor) []const u8 {
-        const result = std.fmt.bufPrint(&bg_buf, "\x1b[48;2;{d};{d};{d}m", .{ self.r, self.g, self.b }) catch "\x1b[49m";
+        const result = std.fmt.bufPrint(nextBg(), "\x1b[48;2;{d};{d};{d}m", .{ self.r, self.g, self.b }) catch "\x1b[49m";
         return result;
     }
 
     pub fn toUnderline(self: RgbColor) []const u8 {
-        const result = std.fmt.bufPrint(&ul_buf, "\x1b[58;2;{d};{d};{d}m", .{ self.r, self.g, self.b }) catch "\x1b[59m";
+        const result = std.fmt.bufPrint(nextUl(), "\x1b[58;2;{d};{d};{d}m", .{ self.r, self.g, self.b }) catch "\x1b[59m";
         return result;
+    }
+
+    pub fn luminance(self: RgbColor) f64 {
+        const r = @as(f64, @floatFromInt(self.r)) / 255.0;
+        const g = @as(f64, @floatFromInt(self.g)) / 255.0;
+        const b = @as(f64, @floatFromInt(self.b)) / 255.0;
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
     }
 };
 
@@ -58,6 +85,10 @@ pub const HexColor = struct {
             .g = @intCast((self.value >> 8) & 0xFF),
             .b = @intCast(self.value & 0xFF),
         };
+    }
+
+    pub fn toString(self: HexColor) [7]u8 {
+        return std.fmt.bytesToHex(std.fmt.bytesToHex([3]u8{ self.toRgb().r, self.toRgb().g, self.toRgb().b }));
     }
 
     fn parseHexDigit(c: u8) !u8 {
@@ -205,6 +236,126 @@ pub const HsvColor = struct {
     }
 };
 
+pub const CmykColor = struct {
+    c: u8,
+    m: u8,
+    y: u8,
+    k: u8,
+
+    pub fn init(c: u8, m: u8, y: u8, k: u8) CmykColor {
+        return .{ .c = c, .m = m, .y = y, .k = k };
+    }
+
+    pub fn toRgb(self: CmykColor) RgbColor {
+        const c_f = @as(f64, @floatFromInt(self.c)) / 100.0;
+        const m_f = @as(f64, @floatFromInt(self.m)) / 100.0;
+        const y_f = @as(f64, @floatFromInt(self.y)) / 100.0;
+        const k_f = @as(f64, @floatFromInt(self.k)) / 100.0;
+        const r = @as(u8, @intFromFloat((1.0 - c_f) * (1.0 - k_f) * 255.0));
+        const g = @as(u8, @intFromFloat((1.0 - m_f) * (1.0 - k_f) * 255.0));
+        const b = @as(u8, @intFromFloat((1.0 - y_f) * (1.0 - k_f) * 255.0));
+        return .{ .r = r, .g = g, .b = b };
+    }
+
+    pub fn fromRgb(rgb: RgbColor) CmykColor {
+        const r_f = @as(f64, @floatFromInt(rgb.r)) / 255.0;
+        const g_f = @as(f64, @floatFromInt(rgb.g)) / 255.0;
+        const b_f = @as(f64, @floatFromInt(rgb.b)) / 255.0;
+        const k = 1.0 - @max(r_f, @max(g_f, b_f));
+        if (k == 1.0) return .{ .c = 0, .m = 0, .y = 0, .k = 100 };
+        const c = @as(u8, @intFromFloat((1.0 - r_f - k) / (1.0 - k) * 100.0));
+        const m = @as(u8, @intFromFloat((1.0 - g_f - k) / (1.0 - k) * 100.0));
+        const y = @as(u8, @intFromFloat((1.0 - b_f - k) / (1.0 - k) * 100.0));
+        return .{ .c = c, .m = m, .y = y, .k = @intFromFloat(k * 100.0) };
+    }
+};
+
+pub const XyzColor = struct {
+    x: f64,
+    y: f64,
+    z: f64,
+
+    pub fn init(x: f64, y: f64, z: f64) XyzColor {
+        return .{ .x = x, .y = y, .z = z };
+    }
+
+    pub fn fromRgb(rgb: RgbColor) XyzColor {
+        var r = @as(f64, @floatFromInt(rgb.r)) / 255.0;
+        var g = @as(f64, @floatFromInt(rgb.g)) / 255.0;
+        var b = @as(f64, @floatFromInt(rgb.b)) / 255.0;
+        r = if (r > 0.04045) std.math.pow(f64, (r + 0.055) / 1.055, 2.4) else r / 12.92;
+        g = if (g > 0.04045) std.math.pow(f64, (g + 0.055) / 1.055, 2.4) else g / 12.92;
+        b = if (b > 0.04045) std.math.pow(f64, (b + 0.055) / 1.055, 2.4) else b / 12.92;
+        return .{
+            .x = r * 0.4124564 + g * 0.3575761 + b * 0.1804375,
+            .y = r * 0.2126729 + g * 0.7151522 + b * 0.0721750,
+            .z = r * 0.0193339 + g * 0.1191920 + b * 0.9503041,
+        };
+    }
+
+    pub fn toRgb(self: XyzColor) RgbColor {
+        var r = self.x * 3.2404542 + self.y * -1.5371385 + self.z * -0.4985314;
+        var g = self.x * -0.9692660 + self.y * 1.8760108 + self.z * 0.0415560;
+        var b = self.x * 0.0556434 + self.y * -0.2040259 + self.z * 1.0572252;
+        r = if (r > 0.0031308) 1.055 * std.math.pow(f64, r, 1.0 / 2.4) - 0.055 else 12.92 * r;
+        g = if (g > 0.0031308) 1.055 * std.math.pow(f64, g, 1.0 / 2.4) - 0.055 else 12.92 * g;
+        b = if (b > 0.0031308) 1.055 * std.math.pow(f64, b, 1.0 / 2.4) - 0.055 else 12.92 * b;
+        return .{
+            .r = @intCast(@max(0, @min(255, @as(u8, @intFromFloat(r * 255.0))))),
+            .g = @intCast(@max(0, @min(255, @as(u8, @intFromFloat(g * 255.0))))),
+            .b = @intCast(@max(0, @min(255, @as(u8, @intFromFloat(b * 255.0))))),
+        };
+    }
+};
+
+pub const LabColor = struct {
+    l: f64,
+    a: f64,
+    b_val: f64,
+
+    pub fn init(l: f64, a: f64, b_val: f64) LabColor {
+        return .{ .l = l, .a = a, .b_val = b_val };
+    }
+
+    pub fn fromXyz(xyz: XyzColor) LabColor {
+        const ref_x = 0.95047;
+        const ref_y = 1.00000;
+        const ref_z = 1.08883;
+        const x = xyz.x / ref_x;
+        const y = xyz.y / ref_y;
+        const z = xyz.z / ref_z;
+        const x_f = if (x > 0.008856) std.math.pow(f64, x, 1.0 / 3.0) else (903.3 * x + 16.0) / 116.0;
+        const y_f = if (y > 0.008856) std.math.pow(f64, y, 1.0 / 3.0) else (903.3 * y + 16.0) / 116.0;
+        const z_f = if (z > 0.008856) std.math.pow(f64, z, 1.0 / 3.0) else (903.3 * z + 16.0) / 116.0;
+        return .{
+            .l = 116.0 * y_f - 16.0,
+            .a = 500.0 * (x_f - y_f),
+            .b_val = 200.0 * (y_f - z_f),
+        };
+    }
+
+    pub fn toXyz(self: LabColor) XyzColor {
+        const y = (self.l + 16.0) / 116.0;
+        const x = self.a / 500.0 + y;
+        const z = y - self.b_val / 200.0;
+        const x_f = if (x * x * x > 0.008856) std.math.pow(f64, x, 3.0) else (116.0 * x - 16.0) / 903.3;
+        const y_f = if (self.l > 7.9996) std.math.pow(f64, y, 3.0) else self.l / 903.3;
+        const z_f = if (z * z * z > 0.008856) std.math.pow(f64, z, 3.0) else (116.0 * z - 16.0) / 903.3;
+        return .{
+            .x = x_f * 0.95047,
+            .y = y_f * 1.00000,
+            .z = z_f * 1.08883,
+        };
+    }
+
+    pub fn distance(self: LabColor, other: LabColor) f64 {
+        const dl = self.l - other.l;
+        const da = self.a - other.a;
+        const db = self.b_val - other.b_val;
+        return @sqrt(dl * dl + da * da + db * db);
+    }
+};
+
 pub const Ansi4 = enum {
     black,
     red,
@@ -233,19 +384,39 @@ pub const Color = union(enum) {
     hsl: HslColor,
     hsv: HsvColor,
 
-    threadlocal var fg_buf: [20]u8 = undefined;
-    threadlocal var bg_buf: [20]u8 = undefined;
-    threadlocal var ul_buf: [20]u8 = undefined;
+    const NUM_BUFS = 8;
+    threadlocal var fg_bufs: [NUM_BUFS][20]u8 = undefined;
+    threadlocal var fg_idx: usize = 0;
+    threadlocal var bg_bufs: [NUM_BUFS][20]u8 = undefined;
+    threadlocal var bg_idx: usize = 0;
+    threadlocal var ul_bufs: [NUM_BUFS][20]u8 = undefined;
+    threadlocal var ul_idx: usize = 0;
+
+    fn nextFgb() *[20]u8 {
+        const b = &fg_bufs[fg_idx % NUM_BUFS];
+        fg_idx +%= 1;
+        return b;
+    }
+    fn nextBgb() *[20]u8 {
+        const b = &bg_bufs[bg_idx % NUM_BUFS];
+        bg_idx +%= 1;
+        return b;
+    }
+    fn nextUlb() *[20]u8 {
+        const b = &ul_bufs[ul_idx % NUM_BUFS];
+        ul_idx +%= 1;
+        return b;
+    }
 
     pub fn toFg(self: Color) []const u8 {
         return switch (self) {
             .ansi4 => |a| ansi4_fg(a),
             .ansi256 => |a| {
-                const result = std.fmt.bufPrint(&fg_buf, "\x1b[38;5;{d}m", .{a.index}) catch "\x1b[39m";
+                const result = std.fmt.bufPrint(nextFgb(), "\x1b[38;5;{d}m", .{a.index}) catch "\x1b[39m";
                 return result;
             },
             .rgb => |r| {
-                const result = std.fmt.bufPrint(&fg_buf, "\x1b[38;2;{d};{d};{d}m", .{ r.r, r.g, r.b }) catch "\x1b[39m";
+                const result = std.fmt.bufPrint(nextFgb(), "\x1b[38;2;{d};{d};{d}m", .{ r.r, r.g, r.b }) catch "\x1b[39m";
                 return result;
             },
             .hex => |h| {
@@ -261,11 +432,11 @@ pub const Color = union(enum) {
         return switch (self) {
             .ansi4 => |a| ansi4_bg(a),
             .ansi256 => |a| {
-                const result = std.fmt.bufPrint(&bg_buf, "\x1b[48;5;{d}m", .{a.index}) catch "\x1b[49m";
+                const result = std.fmt.bufPrint(nextBgb(), "\x1b[48;5;{d}m", .{a.index}) catch "\x1b[49m";
                 return result;
             },
             .rgb => |r| {
-                const result = std.fmt.bufPrint(&bg_buf, "\x1b[48;2;{d};{d};{d}m", .{ r.r, r.g, r.b }) catch "\x1b[49m";
+                const result = std.fmt.bufPrint(nextBgb(), "\x1b[48;2;{d};{d};{d}m", .{ r.r, r.g, r.b }) catch "\x1b[49m";
                 return result;
             },
             .hex => |h| {
@@ -281,11 +452,11 @@ pub const Color = union(enum) {
         return switch (self) {
             .ansi4 => |a| ansi4_ul(a),
             .ansi256 => |a| {
-                const result = std.fmt.bufPrint(&ul_buf, "\x1b[58;5;{d}m", .{a.index}) catch "\x1b[59m";
+                const result = std.fmt.bufPrint(nextUlb(), "\x1b[58;5;{d}m", .{a.index}) catch "\x1b[59m";
                 return result;
             },
             .rgb => |r| {
-                const result = std.fmt.bufPrint(&ul_buf, "\x1b[58;2;{d};{d};{d}m", .{ r.r, r.g, r.b }) catch "\x1b[59m";
+                const result = std.fmt.bufPrint(nextUlb(), "\x1b[58;2;{d};{d};{d}m", .{ r.r, r.g, r.b }) catch "\x1b[59m";
                 return result;
             },
             .hex => |h| {
@@ -392,6 +563,38 @@ pub const Color = union(enum) {
         };
     }
 
+    pub fn toHex(self: Color) u24 {
+        const rgb = self.toRgb();
+        return @as(u24, @intCast(rgb.r)) << 16 | @as(u24, @intCast(rgb.g)) << 8 | @as(u24, @intCast(rgb.b));
+    }
+
+    pub fn toHsl(self: Color) HslColor {
+        const c = self.toRgb();
+        return rgb_to_hsl(c.r, c.g, c.b);
+    }
+
+    pub fn toHsv(self: Color) HsvColor {
+        const c = self.toRgb();
+        return rgb_to_hsv(c.r, c.g, c.b);
+    }
+
+    pub fn toCmyk(self: Color) CmykColor {
+        return CmykColor.fromRgb(self.toRgb());
+    }
+
+    pub fn toLab(self: Color) LabColor {
+        const xyz = XyzColor.fromRgb(self.toRgb());
+        return LabColor.fromXyz(xyz);
+    }
+
+    pub fn toXyz(self: Color) XyzColor {
+        return XyzColor.fromRgb(self.toRgb());
+    }
+
+    pub fn luminance(self: Color) f64 {
+        return self.toRgb().luminance();
+    }
+
     pub fn lighten(self: Color, amount: f64) Color {
         const c = self.toRgb();
         const hsl = rgb_to_hsl(c.r, c.g, c.b);
@@ -439,7 +642,133 @@ pub const Color = union(enum) {
         const b = @as(u8, @intFromFloat(@as(f64, @floatFromInt(c1.b)) * (1.0 - ratio) + @as(f64, @floatFromInt(c2.b)) * ratio));
         return .{ .rgb = RgbColor.init(r, g, b) };
     }
+
+    pub fn rotate(self: Color, degrees: u16) Color {
+        const hsl = self.toHsl();
+        return .{ .hsl = HslColor.init((hsl.h + degrees) % 360, hsl.s, hsl.l) };
+    }
+
+    pub fn adjustHue(self: Color, degrees: i32) Color {
+        const hsl = self.toHsl();
+        const new_h = @as(i32, @intCast(hsl.h)) + degrees;
+        const wrapped = @mod(new_h, @as(i32, 360));
+        return .{ .hsl = HslColor.init(@intCast(wrapped), hsl.s, hsl.l) };
+    }
+
+    pub fn temperatureToRgb(temp: u16) RgbColor {
+        const t = @as(f64, @floatFromInt(temp)) / 100.0;
+        var r: f64 = 0;
+        var g: f64 = 0;
+        var b: f64 = 0;
+        if (t <= 66) {
+            r = 255;
+            g = 99.4708025861 * @log(t) - 161.1195681661;
+            if (t <= 19) {
+                b = 0;
+            } else {
+                b = 138.5177312231 * @log(t - 10) - 305.0447927307;
+            }
+        } else {
+            r = 329.698727446 * std.math.pow(f64, t - 60, -0.1332047592);
+            g = 288.1221695283 * std.math.pow(f64, t - 60, -0.0755148492);
+            b = 255;
+        }
+        return .{
+            .r = @intCast(@max(0, @min(255, @as(u8, @intFromFloat(r))))),
+            .g = @intCast(@max(0, @min(255, @as(u8, @intFromFloat(g))))),
+            .b = @intCast(@max(0, @min(255, @as(u8, @intFromFloat(b))))),
+        };
+    }
+
+    pub fn kelvin(temp: u16) Color {
+        return .{ .rgb = Color.temperatureToRgb(temp) };
+    }
+
+    pub fn complementary(self: Color) Color {
+        return self.rotate(180);
+    }
+
+    pub fn analogous(self: Color) [2]Color {
+        return .{ self.rotate(30), self.rotate(330) };
+    }
+
+    pub fn triadic(self: Color) [2]Color {
+        return .{ self.rotate(120), self.rotate(240) };
+    }
+
+    pub fn splitComplementary(self: Color) [2]Color {
+        return .{ self.rotate(150), self.rotate(210) };
+    }
+
+    pub fn tetradic(self: Color) [3]Color {
+        return .{ self.rotate(90), self.rotate(180), self.rotate(270) };
+    }
+
+    pub fn isLight(self: Color) bool {
+        return self.luminance() > 0.5;
+    }
+
+    pub fn isDark(self: Color) bool {
+        return self.luminance() <= 0.5;
+    }
+
+    pub fn colorDistance(self: Color, other: Color) f64 {
+        return self.toLab().distance(other.toLab());
+    }
+
+    pub fn contrastRatio(self: Color, other: Color) f64 {
+        const l1 = self.luminance();
+        const l2 = other.luminance();
+        const lighter = @max(l1, l2);
+        const darker = @min(l1, l2);
+        return (lighter + 0.05) / (darker + 0.05);
+    }
+
+    pub fn lerp(c1: Color, c2: Color, t: f64) Color {
+        const r1 = c1.toRgb();
+        const r2 = c2.toRgb();
+        const r = @as(u8, @intFromFloat(@as(f64, @floatFromInt(r1.r)) * (1.0 - t) + @as(f64, @floatFromInt(r2.r)) * t));
+        const g = @as(u8, @intFromFloat(@as(f64, @floatFromInt(r1.g)) * (1.0 - t) + @as(f64, @floatFromInt(r2.g)) * t));
+        const b = @as(u8, @intFromFloat(@as(f64, @floatFromInt(r1.b)) * (1.0 - t) + @as(f64, @floatFromInt(r2.b)) * t));
+        return .{ .rgb = RgbColor.init(r, g, b) };
+    }
+
+    pub fn nearestAnsi256(self: Color) u8 {
+        const target = self.toRgb();
+        var best_index: u8 = 0;
+        var best_distance: f64 = std.math.floatMax(f64);
+        var i: u16 = 0;
+        while (i < 256) : (i += 1) {
+            const palette_rgb = ansi256_to_rgb(@intCast(i));
+            const dr = @as(f64, @floatFromInt(target.r)) - @as(f64, @floatFromInt(palette_rgb.r));
+            const dg = @as(f64, @floatFromInt(target.g)) - @as(f64, @floatFromInt(palette_rgb.g));
+            const db = @as(f64, @floatFromInt(target.b)) - @as(f64, @floatFromInt(palette_rgb.b));
+            const distance = dr * dr + dg * dg + db * db;
+            if (distance < best_distance) {
+                best_distance = distance;
+                best_index = @intCast(i);
+            }
+        }
+        return best_index;
+    }
 };
+
+fn ansi256_to_rgb(index: u16) RgbColor {
+    if (index < 16) return ansi16_to_rgb[index];
+    if (index >= 232) {
+        const gray: u8 = @intCast(8 + (index - 232) * 10);
+        return .{ .r = gray, .g = gray, .b = gray };
+    }
+    const idx = index - 16;
+    const b: u8 = @intCast(idx % 6);
+    const g: u8 = @intCast((idx / 6) % 6);
+    const r: u8 = @intCast(idx / 36);
+    return .{
+        .r = if (r == 0) 0 else @intCast(55 + r * 40),
+        .g = if (g == 0) 0 else @intCast(55 + g * 40),
+        .b = if (b == 0) 0 else @intCast(55 + b * 40),
+    };
+}
 
 fn rgb_to_hsl(r: u8, g: u8, b: u8) HslColor {
     const rf: f64 = @as(f64, @floatFromInt(r)) / 255.0;
@@ -462,6 +791,29 @@ fn rgb_to_hsl(r: u8, g: u8, b: u8) HslColor {
     }
     h *= 60.0;
     return .{ .h = @intFromFloat(h), .s = @intFromFloat(s * 100.0), .l = @intFromFloat(l * 100.0) };
+}
+
+fn rgb_to_hsv(r: u8, g: u8, b: u8) HsvColor {
+    const rf: f64 = @as(f64, @floatFromInt(r)) / 255.0;
+    const gf: f64 = @as(f64, @floatFromInt(g)) / 255.0;
+    const bf: f64 = @as(f64, @floatFromInt(b)) / 255.0;
+    const max = @max(rf, @max(gf, bf));
+    const min = @min(rf, @min(gf, bf));
+    const d = max - min;
+    var h: f64 = 0;
+    if (d != 0) {
+        if (max == rf) {
+            h = (gf - bf) / d;
+            if (gf < bf) h += 6.0;
+        } else if (max == gf) {
+            h = (bf - rf) / d + 2.0;
+        } else {
+            h = (rf - gf) / d + 4.0;
+        }
+        h *= 60.0;
+    }
+    const s = if (max == 0) 0 else d / max;
+    return .{ .h = @intFromFloat(h), .s = @intFromFloat(s * 100.0), .v = @intFromFloat(max * 100.0) };
 }
 
 pub const Named = struct {
@@ -700,4 +1052,93 @@ test "Color mix" {
     try testing.expectEqual(@as(u8, 127), mixed.toRgb().r);
     try testing.expectEqual(@as(u8, 0), mixed.toRgb().g);
     try testing.expectEqual(@as(u8, 127), mixed.toRgb().b);
+}
+
+test "CmykColor conversion" {
+    const cmyk = CmykColor.init(0, 100, 100, 0);
+    const rgb = cmyk.toRgb();
+    try testing.expectEqual(@as(u8, 255), rgb.r);
+    try testing.expectEqual(@as(u8, 0), rgb.g);
+    try testing.expectEqual(@as(u8, 0), rgb.b);
+}
+
+test "CmykColor fromRgb" {
+    const rgb = RgbColor.init(255, 0, 0);
+    const cmyk = CmykColor.fromRgb(rgb);
+    try testing.expectEqual(@as(u8, 0), cmyk.c);
+    try testing.expectEqual(@as(u8, 100), cmyk.m);
+    try testing.expectEqual(@as(u8, 100), cmyk.y);
+    try testing.expectEqual(@as(u8, 0), cmyk.k);
+}
+
+test "XyzColor conversion" {
+    const xyz = XyzColor.init(0.4124, 0.2126, 0.0193);
+    const rgb = xyz.toRgb();
+    try testing.expect(rgb.r > 0);
+}
+
+test "LabColor distance" {
+    const lab1 = LabColor.init(50.0, 0.0, 0.0);
+    const lab2 = LabColor.init(50.0, 10.0, 0.0);
+    const d = lab1.distance(lab2);
+    try testing.expect(d > 0);
+}
+
+test "Color rotation" {
+    const c = Color{ .hsl = HslColor.init(0, 100, 50) };
+    const rotated = c.rotate(180);
+    try testing.expectEqual(@as(u16, 180), rotated.toHsl().h);
+}
+
+test "Color harmony" {
+    const c = Color{ .rgb = RgbColor.init(255, 0, 0) };
+    _ = c.complementary();
+    _ = c.analogous();
+    _ = c.triadic();
+    _ = c.splitComplementary();
+    _ = c.tetradic();
+}
+
+test "Color light and dark" {
+    const light = Color{ .rgb = RgbColor.init(255, 255, 255) };
+    const dark = Color{ .rgb = RgbColor.init(0, 0, 0) };
+    try testing.expect(light.isLight());
+    try testing.expect(dark.isDark());
+}
+
+test "Color contrast ratio" {
+    const white = Color{ .rgb = RgbColor.init(255, 255, 255) };
+    const black = Color{ .rgb = RgbColor.init(0, 0, 0) };
+    const ratio = white.contrastRatio(black);
+    try testing.expect(ratio > 20.0);
+}
+
+test "Color lerp" {
+    const c1 = Color{ .rgb = RgbColor.init(0, 0, 0) };
+    const c2 = Color{ .rgb = RgbColor.init(255, 255, 255) };
+    const mid = Color.lerp(c1, c2, 0.5);
+    try testing.expectEqual(@as(u8, 127), mid.toRgb().r);
+}
+
+test "Color nearestAnsi256" {
+    const red = Color{ .rgb = RgbColor.init(255, 0, 0) };
+    const idx = red.nearestAnsi256();
+    try testing.expect(idx < 256);
+}
+
+test "Color toHex" {
+    const c = Color{ .rgb = RgbColor.init(255, 128, 0) };
+    try testing.expectEqual(@as(u24, 0xFF8000), c.toHex());
+}
+
+test "Color temperature" {
+    const warm = Color.temperatureToRgb(3000);
+    const cool = Color.temperatureToRgb(7000);
+    try testing.expect(warm.r > cool.r);
+}
+
+test "RgbColor luminance" {
+    const white = RgbColor.init(255, 255, 255);
+    const black = RgbColor.init(0, 0, 0);
+    try testing.expect(white.luminance() > black.luminance());
 }

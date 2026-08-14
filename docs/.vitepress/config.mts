@@ -5,7 +5,7 @@ import llmstxt from "vitepress-plugin-llms";
 export const SITE_URL = "https://muhammad-fiaz.github.io/tint.zig";
 export const SITE_NAME = "tint.zig";
 export const SITE_DESCRIPTION =
-  "A comprehensive, explicit terminal color and text styling library for Zig, supporting ANSI, bright ANSI, 256-color, RGB, HEX, palettes, themes, and composable styles.";
+  "A comprehensive, explicit terminal color and text styling library for Zig, supporting ANSI, bright ANSI, 256-color, RGB, HEX, HSL, HSV, CMYK, LAB, XYZ, palettes, themes, composable styles, cursor control, and terminal management.";
 
 // Google Analytics and Google Tag Manager IDs
 export const GA_ID = "G-6BVYCRK57P";
@@ -16,7 +16,7 @@ export const ADSENSE_CLIENT_ID = "ca-pub-2040560600290490";
 
 // SEO Keywords
 export const KEYWORDS =
-  "zig, terminal, color, ansi, style, rgb, hex, truecolor, 256-color, palette, theme, styling, escape, sgr, text, formatting, cli";
+  "zig, terminal, color, ansi, style, rgb, hex, truecolor, 256-color, palette, theme, styling, escape, sgr, text, formatting, cli, cmyk, lab, xyz, cursor, hsl, hsv, color-manipulation, terminal-control, zig-library";
 
 export default defineConfig({
   lang: "en-US",
@@ -302,6 +302,28 @@ gtag('config', '${GA_ID}');`,
         },
         downloadUrl: "https://github.com/muhammad-fiaz/tint.zig",
         license: "https://opensource.org/licenses/MIT",
+        featureList: [
+          "ANSI 4-bit and bright colors",
+          "ANSI 256-color support",
+          "RGB/TrueColor 24-bit color",
+          "HEX color from integer",
+          "HSL and HSV color space",
+          "CMYK color conversion",
+          "CIE XYZ and CIE Lab color spaces",
+          "140+ CSS/X11 named colors",
+          "Composable styles",
+          "16 built-in themes",
+          "Color manipulation (lighten, darken, saturate, desaturate, invert, grayscale, mix)",
+          "Color harmony (complementary, analogous, triadic, split-complementary, tetradic)",
+          "Color distance and contrast ratio",
+          "Color temperature (Kelvin to RGB)",
+          "Cursor control",
+          "Mouse tracking",
+          "Terminal management",
+          "Color palettes and gradients",
+          "Zero dependencies",
+          "Cross-platform (Windows, Linux, macOS)",
+        ],
       });
     } else {
       const pathParts = pageData.relativePath.split("/");
@@ -421,19 +443,14 @@ gtag('config', '${GA_ID}');`,
         items: [
           { text: "Overview", link: "/examples/" },
           { text: "Basic", link: "/examples/basic" },
-          { text: "ANSI 16", link: "/examples/ansi16" },
-          { text: "Bright Colors", link: "/examples/bright" },
-          { text: "ANSI 256", link: "/examples/ansi256" },
-          { text: "RGB", link: "/examples/rgb" },
-          { text: "HEX", link: "/examples/hex" },
-          { text: "HSL", link: "/examples/hsl" },
-          { text: "HSV", link: "/examples/hsv" },
-          { text: "Styles", link: "/examples/styles" },
-          { text: "Underline Colors", link: "/examples/underline-color" },
-          { text: "Palettes", link: "/examples/palettes" },
-          { text: "Themes", link: "/examples/themes" },
-          { text: "Composition", link: "/examples/composition" },
           { text: "Complete Demo", link: "/examples/complete" },
+          { text: "CMYK", link: "/examples/cmyk" },
+          { text: "Color Temperature", link: "/examples/color-temperature" },
+          { text: "Color Manipulation", link: "/examples/color-manipulation" },
+          { text: "Color Harmony", link: "/examples/color-harmony" },
+          { text: "Color Analysis", link: "/examples/color-analysis" },
+          { text: "Presets", link: "/examples/presets" },
+          { text: "Themes Extended", link: "/examples/themes-extended" },
         ],
       },
     ],

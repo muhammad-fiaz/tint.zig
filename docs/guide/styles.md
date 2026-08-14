@@ -30,10 +30,16 @@ std.debug.print("{s}Error message{s}\n", .{
 | `italic` | `bool` | Italic text (SGR 3) |
 | `underline` | `bool` | Underlined text (SGR 4) |
 | `blink` | `bool` | Blinking text (SGR 5) |
+| `rapid_blink` | `bool` | Rapid blink (SGR 6) |
 | `reverse` | `bool` | Reversed text (SGR 7) |
 | `hidden` | `bool` | Hidden text (SGR 8) |
 | `strikethrough` | `bool` | Strikethrough text (SGR 9) |
+| `super_script` | `bool` | Superscript (SGR 73) |
+| `sub_script` | `bool` | Subscript (SGR 74) |
+| `fraktur` | `bool` | Fraktur/Gothic (SGR 20) |
 | `overline` | `bool` | Overlined text (SGR 53) |
+| `frame` | `bool` | Framed text (SGR 51) |
+| `encircle` | `bool` | Encircled text (SGR 52) |
 
 ## Extending Styles
 
@@ -48,6 +54,41 @@ const base = tint.style(.{
 const warning = base.with(.{
     .underline = true,
 });
+```
+
+## Convenience Methods
+
+```zig
+const s = tint.style(.{ .bold = true });
+const with_fg = s.withFg(.{ .ansi4 = .red });      // Set foreground
+const with_bg = s.withBg(.{ .ansi4 = .blue });      // Set background
+const with_ul = s.withUnderline(.{ .ansi4 = .green }); // Set underline color
+```
+
+## Style Composition
+
+Merge two styles with `compose()`:
+
+```zig
+const s1 = tint.style(.{ .bold = true, .fg = .{ .ansi4 = .red } });
+const s2 = tint.style(.{ .italic = true, .bg = .{ .ansi4 = .blue } });
+const composed = tint.Style.compose(s1, s2);
+// Result: bold=true, italic=true, fg=red, bg=blue
+```
+
+## Preset Styles
+
+```zig
+const err = tint.presets.err_style(.{ .ansi4 = .red });    // Bold red
+const warn = tint.presets.warning(.{ .ansi4 = .yellow });  // Bold yellow
+const ok = tint.presets.success(.{ .ansi4 = .green });     // Bold green
+const info = tint.presets.info(.{ .ansi4 = .cyan });       // Normal cyan
+const debug = tint.presets.debug(.{ .ansi4 = .bright_black }); // Dim gray
+const link = tint.presets.link(.{ .ansi4 = .blue });       // Underlined blue
+const code = tint.presets.code(.{ .ansi4 = .white }, .{ .ansi4 = .black }); // White on black
+const hdr = tint.presets.header(.{ .ansi4 = .bright_white }); // Bold underlined
+const muted = tint.presets.muted(.{ .ansi4 = .bright_black }); // Dim
+const hl = tint.presets.highlight(.{ .ansi4 = .black }, .{ .ansi4 = .yellow }); // Bold black on yellow
 ```
 
 ## Individual Resets

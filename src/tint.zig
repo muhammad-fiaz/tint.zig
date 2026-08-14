@@ -12,8 +12,13 @@ pub const HexColor = color.HexColor;
 pub const Ansi256Color = color.Ansi256Color;
 pub const HslColor = color.HslColor;
 pub const HsvColor = color.HsvColor;
+pub const CmykColor = color.CmykColor;
+pub const XyzColor = color.XyzColor;
+pub const LabColor = color.LabColor;
 pub const Style = style_mod.Style;
 pub const Theme = theme_mod.Theme;
+pub const Named = color.Named;
+pub const presets = style_mod.presets;
 
 pub const ESC = "\x1b[";
 pub const END = "m";
@@ -31,9 +36,8 @@ pub const reset_overline = ESC ++ "55" ++ END;
 pub const reset_fg = ESC ++ "39" ++ END;
 pub const reset_bg = ESC ++ "49" ++ END;
 pub const reset_underline_color = ESC ++ "59" ++ END;
+pub const reset_all = ESC ++ "0" ++ END;
 
-pub const named = color.Named;
-pub const ansi_palette = palette;
 pub const themes = theme_mod;
 
 pub fn fg(c: Color) []const u8 {
@@ -46,6 +50,30 @@ pub fn bg(c: Color) []const u8 {
 
 pub fn underline(c: Color) []const u8 {
     return c.toUnderline();
+}
+
+pub fn fgRgb(r: u8, g: u8, b: u8) []const u8 {
+    return fg(.{ .rgb = RgbColor.init(r, g, b) });
+}
+
+pub fn bgRgb(r: u8, g: u8, b: u8) []const u8 {
+    return bg(.{ .rgb = RgbColor.init(r, g, b) });
+}
+
+pub fn fgHex(value: u24) []const u8 {
+    return fg(hex(value));
+}
+
+pub fn bgHex(value: u24) []const u8 {
+    return bg(hex(value));
+}
+
+pub fn fg256(index: u8) []const u8 {
+    return fg(ansi256(index));
+}
+
+pub fn bg256(index: u8) []const u8 {
+    return bg(ansi256(index));
 }
 
 pub fn style(opts: style_mod.StyleOptions) Style {
@@ -72,36 +100,16 @@ pub fn hsv(h: u16, s: u8, v: u8) Color {
     return Color{ .hsv = HsvColor.init(h, s, v) };
 }
 
-pub fn sgr1(code: u8) [6]u8 {
-    var buf: [6]u8 = undefined;
-    buf[0] = '\x1b';
-    buf[1] = '[';
-    _ = std.fmt.bufPrint(buf[2..], "{d}m", .{code}) catch unreachable;
-    return buf;
+pub fn cmyk(c: u8, m: u8, y: u8, k: u8) Color {
+    return Color{ .rgb = CmykColor.init(c, m, y, k).toRgb() };
 }
 
-pub fn sgr2(code1: u8, code2: u8) [8]u8 {
-    var buf: [8]u8 = undefined;
-    buf[0] = '\x1b';
-    buf[1] = '[';
-    _ = std.fmt.bufPrint(buf[2..], "{d};{d}m", .{ code1, code2 }) catch unreachable;
-    return buf;
+pub fn kelvin(temp: u16) Color {
+    return Color{ .rgb = Color.temperatureToRgb(temp) };
 }
 
-pub fn sgr3(code1: u8, code2: u8, code3: u8) [10]u8 {
-    var buf: [10]u8 = undefined;
-    buf[0] = '\x1b';
-    buf[1] = '[';
-    _ = std.fmt.bufPrint(buf[2..], "{d};{d};{d}m", .{ code1, code2, code3 }) catch unreachable;
-    return buf;
-}
-
-pub fn sgr4(code1: u8, code2: u8, code3: u8, code4: u8) [12]u8 {
-    var buf: [12]u8 = undefined;
-    buf[0] = '\x1b';
-    buf[1] = '[';
-    _ = std.fmt.bufPrint(buf[2..], "{d};{d};{d};{d}m", .{ code1, code2, code3, code4 }) catch unreachable;
-    return buf;
+pub fn named_color(comptime name: []const u8) Color {
+    return Color{ .rgb = @field(Named, name) };
 }
 
 test "reset codes" {
@@ -233,19 +241,10 @@ test "style toAnsi produces correct sequence" {
     try testing.expect(result.len > 0);
 }
 
-test "sgr functions" {
-    const code1 = sgr1(1);
-    try testing.expectEqual(@as(u8, '\x1b'), code1[0]);
-    try testing.expectEqual(@as(u8, '['), code1[1]);
-    const code2 = sgr2(38, 5);
-    try testing.expectEqual(@as(u8, '\x1b'), code2[0]);
-    try testing.expectEqual(@as(u8, '['), code2[1]);
-}
-
 test "named colors" {
-    try testing.expectEqual(@as(u8, 255), named.red.r);
-    try testing.expectEqual(@as(u8, 0), named.red.g);
-    try testing.expectEqual(@as(u8, 0), named.red.b);
+    try testing.expectEqual(@as(u8, 255), Named.red.r);
+    try testing.expectEqual(@as(u8, 0), Named.red.g);
+    try testing.expectEqual(@as(u8, 0), Named.red.b);
 }
 
 test "palette access" {
@@ -285,4 +284,13 @@ test "color mix" {
     try testing.expectEqual(@as(u8, 127), rgb_val.r);
     try testing.expectEqual(@as(u8, 0), rgb_val.g);
     try testing.expectEqual(@as(u8, 127), rgb_val.b);
+}
+
+test "convenience functions" {
+    try testing.expectEqualStrings("\x1b[38;2;255;0;0m", fgRgb(255, 0, 0));
+    try testing.expectEqualStrings("\x1b[48;2;0;255;0m", bgRgb(0, 255, 0));
+    try testing.expectEqualStrings("\x1b[38;2;255;0;0m", fgHex(0xFF0000));
+    try testing.expectEqualStrings("\x1b[48;2;0;255;0m", bgHex(0x00FF00));
+    try testing.expectEqualStrings("\x1b[38;5;196m", fg256(196));
+    try testing.expectEqualStrings("\x1b[48;5;196m", bg256(196));
 }

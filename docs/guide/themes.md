@@ -4,12 +4,26 @@ tint.zig provides explicit theme support without global state.
 
 ## Built-in Themes
 
+16 built-in themes:
+
 ```zig
 const dark = tint.themes.dark_theme;
 const light = tint.themes.light_theme;
 const dracula = tint.themes.dracula_theme;
 const nord = tint.themes.nord_theme;
 const monokai = tint.themes.monokai_theme;
+const tokyo_night = tint.themes.tokyo_night_theme;
+const gruvbox = tint.themes.gruvbox_theme;
+const solarized = tint.themes.solarized_theme;
+const rose_pine = tint.themes.rose_pine_theme;
+const catppuccin = tint.themes.catppuccin_theme;
+const github = tint.themes.github_theme;
+const one_dark = tint.themes.one_dark_theme;
+const material = tint.themes.material_theme;
+const palenight = tint.themes.palenight_theme;
+const everforest = tint.themes.everforest_theme;
+const kanagawa = tint.themes.kanagawa_theme;
+const cyberdream = tint.themes.cyberdream_theme;
 ```
 
 ## Theme Structure

@@ -18,48 +18,6 @@ pub const Theme = struct {
 };
 ```
 
-## Constants
-
-### dark_theme
-
-```zig
-pub const dark_theme = Theme{ ... };
-```
-
-Default dark theme with indigo primary, green success, red error.
-
-### light_theme
-
-```zig
-pub const light_theme = Theme{ ... };
-```
-
-Default light theme.
-
-### dracula_theme
-
-```zig
-pub const dracula_theme = Theme{ ... };
-```
-
-Dracula color scheme.
-
-### nord_theme
-
-```zig
-pub const nord_theme = Theme{ ... };
-```
-
-Nord color scheme.
-
-### monokai_theme
-
-```zig
-pub const monokai_theme = Theme{ ... };
-```
-
-Monokai color scheme.
-
 ## Functions
 
 ### Theme.init
@@ -79,3 +37,73 @@ pub fn init(
 ```
 
 Creates a new Theme with the given colors.
+
+## Built-in Themes
+
+### dark_theme
+
+Default dark theme with indigo primary, green success, red error.
+
+### light_theme
+
+Default light theme.
+
+### dracula_theme
+
+Dracula color scheme.
+
+### nord_theme
+
+Nord color scheme.
+
+### monokai_theme
+
+Monokai color scheme.
+
+### tokyo_night_theme
+
+Tokyo Night color scheme.
+
+### gruvbox_theme
+
+Gruvbox color scheme.
+
+### solarized_theme
+
+Solarized color scheme.
+
+### rose_pine_theme
+
+Rose Pine color scheme.
+
+### catppuccin_theme
+
+Catppuccin color scheme.
+
+### github_theme
+
+GitHub color scheme.
+
+### one_dark_theme
+
+One Dark color scheme.
+
+### material_theme
+
+Material color scheme.
+
+### palenight_theme
+
+Palenight color scheme.
+
+### everforest_theme
+
+Everforest color scheme.
+
+### kanagawa_theme
+
+Kanagawa color scheme.
+
+### cyberdream_theme
+
+Cyberdream color scheme.

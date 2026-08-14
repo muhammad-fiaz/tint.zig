@@ -2,7 +2,7 @@
 
 # tint.zig
 
-**A comprehensive, zero-dependency terminal color and text styling library for Zig**
+**A fast, minimal terminal color and text styling library for Zig.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Zig 0.16+](https://img.shields.io/badge/Zig-0.16+-orange.svg)](https://ziglang.org/)
@@ -16,29 +16,35 @@
 [![Sponsor](https://img.shields.io/badge/sponsor-%E2%9D%A4-red.svg)](https://github.com/sponsors/muhammad-fiaz)
 [![Visitors](https://api.visitorbadge.io/api/visitors?path=muhammad-fiaz%2Ftint.zig&countColor=%2337d67a&style=flat)](https://visitorbadge.io)
 
+</div>
+
+
 ---
 
-**tint.zig** is a comprehensive, zero-dependency terminal color and text styling library for Zig 0.16.0+. It provides a complete set of ANSI/SGR escape sequence constructors for foreground colors, background colors, underline colors, text attributes, composable styles, themes, and color palettes — all without owning your application's output.
+tint.zig is a fast, minimal, zero dependency terminal color and text styling library for Zig 0.16.0+. It provides ANSI/SGR escape sequence constructors for foreground, background, and underline colors, text attributes, composable styles, themes, and color palettes, without owning your application's output.
 
 > [!NOTE]
 > tint.zig constructs ANSI escape sequences and returns them to the caller. Your application owns all output. The library never prints to stdout/stderr, modifies terminal state, or auto-detects capabilities.
 
-</div>
 
 ---
 
 <details>
 <summary><strong>Features</strong></summary>
 
-- **Complete Color Support** — ANSI 4-bit, bright ANSI, 256-color, RGB/TrueColor, HEX, HSL, HSV
-- **Explicit Styling** — Bold, italic, underline, strikethrough, overline, and more
-- **Composable Themes** — Create, compose, and switch themes explicitly
-- **Color Conversion** — Convert between RGB, HEX, ANSI 256, HSL, and HSV
-- **Color Manipulation** — Lighten, darken, saturate, desaturate, invert, grayscale, mix
+- **Complete Color Support** — ANSI 4-bit, bright ANSI, 256-color, RGB/TrueColor, HEX, HSL, HSV, CMYK, CIE XYZ, CIE Lab
+- **Explicit Styling** — Bold, italic, underline, strikethrough, overline, fraktur, frame, encircle, rapid blink, super/subscript
+- **Composable Themes** — 16 built-in themes (dark, light, dracula, nord, monokai, tokyo_night, gruvbox, solarized, rose_pine, catppuccin, github, one_dark, material, palenight, everforest, kanagawa, cyberdream)
+- **Color Conversion** — Convert between RGB, HEX, ANSI 256, HSL, HSV, CMYK, CIE XYZ, and CIE Lab
+- **Color Manipulation** — Lighten, darken, saturate, desaturate, invert, grayscale, mix, rotate, adjust hue
+- **Color Harmony** — Complementary, analogous, triadic, split-complementary, tetradic
+- **Color Analysis** — Luminance, contrast ratio, color distance, nearest ANSI 256, is light/dark
+- **Color Temperature** — Kelvin to RGB conversion (1000K-40000K)
 - **Named Colors** — 140+ CSS/X11 named colors as RGB values
-- **Palettes** — ANSI 16, ANSI 256, RGB6 cube, grayscale ramp
+- **Palettes** — ANSI 16, ANSI 256, RGB6 cube, grayscale ramp, color ramps, gradients, color wheel, warm/cool/earth/pastel/neon subsets
 - **Zero Dependencies** — Pure Zig with no external dependencies
 - **Client-Owned Output** — The library constructs ANSI codes; your application owns all output
+- **Cross-Platform** — Windows, Linux, macOS, FreeBSD
 
 </details>
 
@@ -162,7 +168,9 @@ pub fn main() void {
 | `tint.ansi256(index)` | Create ANSI 256-color |
 | `tint.hsl(h, s, l)` | Create HSL color |
 | `tint.hsv(h, s, v)` | Create HSV color |
-| `tint.named.red` | 140+ CSS/X11 named colors |
+| `tint.cmyk(c, m, y, k)` | Create CMYK color |
+| `tint.kelvin(temp)` | Create color from Kelvin temperature |
+| `tint.Named.red` | 140+ CSS/X11 named colors |
 | `tint.reset` | Full SGR reset |
 
 > [!NOTE]
@@ -182,10 +190,17 @@ pub fn main() void {
 | HEX | HEX color support | [`examples/hex.zig`](examples/hex.zig) |
 | HSL | HSL color space | [`examples/hsl.zig`](examples/hsl.zig) |
 | HSV | HSV color space | [`examples/hsv.zig`](examples/hsv.zig) |
+| CMYK | CMYK color conversion | [`examples/cmyk.zig`](examples/cmyk.zig) |
+| Color Temperature | Kelvin to RGB | [`examples/color_temperature.zig`](examples/color_temperature.zig) |
+| Color Manipulation | Lighten, darken, mix, invert | [`examples/color_manipulation.zig`](examples/color_manipulation.zig) |
+| Color Harmony | Complementary, triadic, etc. | [`examples/color_harmony.zig`](examples/color_harmony.zig) |
+| Color Analysis | Luminance, contrast, distance | [`examples/color_analysis.zig`](examples/color_analysis.zig) |
 | Styles | Composable text styles | [`examples/styles.zig`](examples/styles.zig) |
+| Presets | Pre-built style presets | [`examples/presets.zig`](examples/presets.zig) |
 | Underline Color | Colored underlines | [`examples/underline_color.zig`](examples/underline_color.zig) |
 | Palettes | Color palette access | [`examples/palettes.zig`](examples/palettes.zig) |
 | Themes | Theme system | [`examples/themes.zig`](examples/themes.zig) |
+| Themes Extended | All 16 built-in themes | [`examples/themes_extended.zig`](examples/themes_extended.zig) |
 | Composition | Style composition | [`examples/composition.zig`](examples/composition.zig) |
 | Complete | Full feature showcase | [`examples/complete.zig`](examples/complete.zig) |
 
@@ -222,15 +237,22 @@ Your application owns all output.
 - [x] RGB/TrueColor with 24-bit color
 - [x] HEX color from integer (0xRRGGBB)
 - [x] HSL and HSV color space conversion
+- [x] CMYK color conversion
+- [x] CIE XYZ and CIE Lab color spaces
 - [x] 140+ CSS/X11 named colors
-- [x] Composable styles (bold, italic, underline, etc.)
-- [x] Theme system with dark/light/dracula/nord/monokai presets
-- [x] Color manipulation (lighten, darken, saturate, desaturate, invert, grayscale, mix)
+- [x] Composable styles (bold, italic, underline, fraktur, frame, encircle, etc.)
+- [x] 16 built-in themes
+- [x] Color manipulation (lighten, darken, saturate, desaturate, invert, grayscale, mix, rotate)
+- [x] Color harmony (complementary, analogous, triadic, split-complementary, tetradic)
+- [x] Color analysis (luminance, contrast ratio, distance, nearest ANSI 256)
+- [x] Color temperature (Kelvin to RGB)
 - [x] Underline color support
 - [x] ANSI 16 and ANSI 256 palette access
+- [x] Color ramps, gradients, and color wheel
 - [x] Compile-time validation for all color inputs
 - [x] Hue wrapping for HSL/HSV (370° → 10°)
 - [x] Zero external dependencies
+- [x] Cross-platform (Windows, Linux, macOS, FreeBSD)
 
 ---
 

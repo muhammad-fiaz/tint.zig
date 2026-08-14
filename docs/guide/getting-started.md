@@ -1,6 +1,6 @@
 # Getting Started
 
-tint.zig is a comprehensive, explicit terminal color and text styling library for Zig.
+tint.zig is a comprehensive, explicit color and text styling library for Zig.
 
 ## Installation
 

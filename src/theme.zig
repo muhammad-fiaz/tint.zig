@@ -89,6 +89,150 @@ pub const monokai_theme = Theme.init(
     .{ .rgb = color.RgbColor.init(117, 113, 94) },
 );
 
+pub const tokyo_night_theme = Theme.init(
+    "tokyo_night",
+    .{ .rgb = color.RgbColor.init(122, 162, 247) },
+    .{ .rgb = color.RgbColor.init(187, 154, 247) },
+    .{ .rgb = color.RgbColor.init(158, 206, 106) },
+    .{ .rgb = color.RgbColor.init(224, 175, 104) },
+    .{ .rgb = color.RgbColor.init(247, 118, 142) },
+    .{ .rgb = color.RgbColor.init(125, 207, 255) },
+    .{ .rgb = color.RgbColor.init(192, 202, 245) },
+    .{ .rgb = color.RgbColor.init(86, 95, 137) },
+);
+
+pub const gruvbox_theme = Theme.init(
+    "gruvbox",
+    .{ .rgb = color.RgbColor.init(131, 165, 152) },
+    .{ .rgb = color.RgbColor.init(214, 153, 61) },
+    .{ .rgb = color.RgbColor.init(184, 187, 38) },
+    .{ .rgb = color.RgbColor.init(250, 189, 47) },
+    .{ .rgb = color.RgbColor.init(251, 73, 52) },
+    .{ .rgb = color.RgbColor.init(131, 165, 152) },
+    .{ .rgb = color.RgbColor.init(235, 219, 178) },
+    .{ .rgb = color.RgbColor.init(147, 153, 178) },
+);
+
+pub const solarized_theme = Theme.init(
+    "solarized",
+    .{ .rgb = color.RgbColor.init(38, 139, 210) },
+    .{ .rgb = color.RgbColor.init(108, 113, 196) },
+    .{ .rgb = color.RgbColor.init(133, 153, 0) },
+    .{ .rgb = color.RgbColor.init(181, 137, 0) },
+    .{ .rgb = color.RgbColor.init(203, 75, 22) },
+    .{ .rgb = color.RgbColor.init(42, 161, 152) },
+    .{ .rgb = color.RgbColor.init(253, 246, 227) },
+    .{ .rgb = color.RgbColor.init(147, 161, 161) },
+);
+
+pub const rose_pine_theme = Theme.init(
+    "rose_pine",
+    .{ .rgb = color.RgbColor.init(49, 116, 143) },
+    .{ .rgb = color.RgbColor.init(196, 167, 231) },
+    .{ .rgb = color.RgbColor.init(156, 207, 216) },
+    .{ .rgb = color.RgbColor.init(246, 193, 119) },
+    .{ .rgb = color.RgbColor.init(235, 111, 146) },
+    .{ .rgb = color.RgbColor.init(127, 179, 213) },
+    .{ .rgb = color.RgbColor.init(224, 222, 244) },
+    .{ .rgb = color.RgbColor.init(110, 106, 134) },
+);
+
+pub const catppuccin_theme = Theme.init(
+    "catppuccin",
+    .{ .rgb = color.RgbColor.init(137, 180, 250) },
+    .{ .rgb = color.RgbColor.init(180, 190, 254) },
+    .{ .rgb = color.RgbColor.init(166, 227, 161) },
+    .{ .rgb = color.RgbColor.init(249, 226, 175) },
+    .{ .rgb = color.RgbColor.init(243, 139, 168) },
+    .{ .rgb = color.RgbColor.init(116, 199, 236) },
+    .{ .rgb = color.RgbColor.init(205, 214, 244) },
+    .{ .rgb = color.RgbColor.init(88, 91, 112) },
+);
+
+pub const github_theme = Theme.init(
+    "github",
+    .{ .rgb = color.RgbColor.init(9, 105, 218) },
+    .{ .rgb = color.RgbColor.init(130, 80, 223) },
+    .{ .rgb = color.RgbColor.init(26, 127, 55) },
+    .{ .rgb = color.RgbColor.init(191, 135, 0) },
+    .{ .rgb = color.RgbColor.init(248, 81, 73) },
+    .{ .rgb = color.RgbColor.init(56, 139, 253) },
+    .{ .rgb = color.RgbColor.init(36, 41, 47) },
+    .{ .rgb = color.RgbColor.init(110, 118, 129) },
+);
+
+pub const one_dark_theme = Theme.init(
+    "one_dark",
+    .{ .rgb = color.RgbColor.init(97, 175, 239) },
+    .{ .rgb = color.RgbColor.init(198, 120, 221) },
+    .{ .rgb = color.RgbColor.init(152, 195, 121) },
+    .{ .rgb = color.RgbColor.init(229, 192, 123) },
+    .{ .rgb = color.RgbColor.init(224, 108, 117) },
+    .{ .rgb = color.RgbColor.init(86, 182, 194) },
+    .{ .rgb = color.RgbColor.init(171, 178, 191) },
+    .{ .rgb = color.RgbColor.init(92, 99, 112) },
+);
+
+pub const material_theme = Theme.init(
+    "material",
+    .{ .rgb = color.RgbColor.init(130, 170, 255) },
+    .{ .rgb = color.RgbColor.init(199, 146, 234) },
+    .{ .rgb = color.RgbColor.init(152, 195, 121) },
+    .{ .rgb = color.RgbColor.init(229, 192, 123) },
+    .{ .rgb = color.RgbColor.init(224, 108, 117) },
+    .{ .rgb = color.RgbColor.init(86, 182, 194) },
+    .{ .rgb = color.RgbColor.init(171, 178, 191) },
+    .{ .rgb = color.RgbColor.init(92, 99, 112) },
+);
+
+pub const palenight_theme = Theme.init(
+    "palenight",
+    .{ .rgb = color.RgbColor.init(130, 170, 255) },
+    .{ .rgb = color.RgbColor.init(199, 146, 234) },
+    .{ .rgb = color.RgbColor.init(152, 195, 121) },
+    .{ .rgb = color.RgbColor.init(229, 192, 123) },
+    .{ .rgb = color.RgbColor.init(224, 108, 117) },
+    .{ .rgb = color.RgbColor.init(86, 182, 194) },
+    .{ .rgb = color.RgbColor.init(171, 178, 191) },
+    .{ .rgb = color.RgbColor.init(92, 99, 112) },
+);
+
+pub const everforest_theme = Theme.init(
+    "everforest",
+    .{ .rgb = color.RgbColor.init(131, 192, 114) },
+    .{ .rgb = color.RgbColor.init(193, 133, 178) },
+    .{ .rgb = color.RgbColor.init(169, 177, 143) },
+    .{ .rgb = color.RgbColor.init(230, 191, 114) },
+    .{ .rgb = color.RgbColor.init(230, 122, 112) },
+    .{ .rgb = color.RgbColor.init(127, 187, 169) },
+    .{ .rgb = color.RgbColor.init(211, 198, 170) },
+    .{ .rgb = color.RgbColor.init(134, 131, 116) },
+);
+
+pub const kanagawa_theme = Theme.init(
+    "kanagawa",
+    .{ .rgb = color.RgbColor.init(126, 156, 216) },
+    .{ .rgb = color.RgbColor.init(187, 154, 247) },
+    .{ .rgb = color.RgbColor.init(152, 187, 108) },
+    .{ .rgb = color.RgbColor.init(220, 190, 110) },
+    .{ .rgb = color.RgbColor.init(232, 105, 132) },
+    .{ .rgb = color.RgbColor.init(125, 168, 200) },
+    .{ .rgb = color.RgbColor.init(220, 215, 190) },
+    .{ .rgb = color.RgbColor.init(148, 142, 118) },
+);
+
+pub const cyberdream_theme = Theme.init(
+    "cyberdream",
+    .{ .rgb = color.RgbColor.init(0, 149, 255) },
+    .{ .rgb = color.RgbColor.init(130, 100, 255) },
+    .{ .rgb = color.RgbColor.init(0, 225, 150) },
+    .{ .rgb = color.RgbColor.init(255, 200, 0) },
+    .{ .rgb = color.RgbColor.init(255, 80, 80) },
+    .{ .rgb = color.RgbColor.init(0, 200, 255) },
+    .{ .rgb = color.RgbColor.init(220, 220, 220) },
+    .{ .rgb = color.RgbColor.init(100, 100, 120) },
+);
+
 test "theme has name" {
     try testing.expectEqualStrings("dark", dark_theme.name);
 }
@@ -105,4 +249,31 @@ test "all built-in themes" {
     _ = dracula_theme;
     _ = nord_theme;
     _ = monokai_theme;
+    _ = tokyo_night_theme;
+    _ = gruvbox_theme;
+    _ = solarized_theme;
+    _ = rose_pine_theme;
+    _ = catppuccin_theme;
+    _ = github_theme;
+    _ = one_dark_theme;
+    _ = material_theme;
+    _ = palenight_theme;
+    _ = everforest_theme;
+    _ = kanagawa_theme;
+    _ = cyberdream_theme;
+}
+
+test "theme init" {
+    const t = Theme.init(
+        "test",
+        .{ .rgb = color.RgbColor.init(0, 0, 0) },
+        .{ .rgb = color.RgbColor.init(0, 0, 0) },
+        .{ .rgb = color.RgbColor.init(0, 0, 0) },
+        .{ .rgb = color.RgbColor.init(0, 0, 0) },
+        .{ .rgb = color.RgbColor.init(0, 0, 0) },
+        .{ .rgb = color.RgbColor.init(0, 0, 0) },
+        .{ .rgb = color.RgbColor.init(0, 0, 0) },
+        .{ .rgb = color.RgbColor.init(0, 0, 0) },
+    );
+    try testing.expectEqualStrings("test", t.name);
 }

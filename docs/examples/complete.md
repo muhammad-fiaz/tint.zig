@@ -48,6 +48,17 @@ pub fn main() void {
         tint.fg(tint.hsv(240, 100, 100)), tint.reset,
     });
 
+    // CMYK
+    std.debug.print("{s}CMYK Cyan{s}\n", .{
+        tint.fg(tint.cmyk(100, 0, 0, 0)), tint.reset,
+    });
+
+    // Color temperature
+    std.debug.print("{s}Warm (2700K){s} {s}Cool (6500K){s}\n", .{
+        tint.fg(tint.kelvin(2700)), tint.reset,
+        tint.fg(tint.kelvin(6500)), tint.reset,
+    });
+
     // Style composition
     const error_style = tint.style(.{
         .fg = tint.hex(0xEF4444),
@@ -63,6 +74,11 @@ pub fn main() void {
     });
     std.debug.print("{s}Underlined error!{s}\n", .{
         warning_style.toAnsi(), tint.reset,
+    });
+
+    // Preset styles
+    std.debug.print("{s}Preset error{s}\n", .{
+        tint.presets.err_style(.{ .ansi4 = .red }).toAnsi(), tint.reset,
     });
 
     // Color manipulation
@@ -83,11 +99,18 @@ pub fn main() void {
         tint.fg(base.grayscale()), tint.reset,
     });
 
+    // Color harmony
+    const red = tint.rgb(255, 0, 0);
+    const comp = red.complementary();
+    std.debug.print("{s}Complementary{s}\n", .{
+        tint.fg(comp), tint.reset,
+    });
+
     // Named colors
     std.debug.print("{s}Coral{s} {s}Teal{s} {s}Gold{s}\n", .{
-        tint.fg(.{ .rgb = tint.named.coral }), tint.reset,
-        tint.fg(.{ .rgb = tint.named.teal }), tint.reset,
-        tint.fg(.{ .rgb = tint.named.gold }), tint.reset,
+        tint.fg(.{ .rgb = tint.Named.coral }), tint.reset,
+        tint.fg(.{ .rgb = tint.Named.teal }), tint.reset,
+        tint.fg(.{ .rgb = tint.Named.gold }), tint.reset,
     });
 
     // Palettes
@@ -99,6 +122,12 @@ pub fn main() void {
     const theme = tint.themes.dark_theme;
     std.debug.print("{s}Theme primary{s}\n", .{
         tint.fg(theme.primary), tint.reset,
+    });
+
+    // Tokyo Night theme
+    const tokyo = tint.themes.tokyo_night_theme;
+    std.debug.print("{s}Tokyo Night primary{s}\n", .{
+        tint.fg(tokyo.primary), tint.reset,
     });
 
     // Background colors
@@ -121,9 +150,13 @@ pub fn main() void {
 4. RGB/TrueColor
 5. HEX colors
 6. HSL and HSV colors
-7. Named colors (140+ CSS/X11 names)
-8. Style composition with `.with()`
-9. Color manipulation (lighten, darken, invert, grayscale)
-10. Palettes (RGB cube, grayscale)
-11. Themes (built-in dark theme)
-12. Underline colors
+7. CMYK colors
+8. Color temperature (Kelvin)
+9. Named colors (140+ CSS/X11 names)
+10. Style composition with `.with()`
+11. Preset styles
+12. Color manipulation (lighten, darken, invert, grayscale)
+13. Color harmony (complementary)
+14. Palettes (RGB cube, grayscale)
+15. Themes (dark, tokyo_night, and 14 more)
+16. Underline colors
