@@ -39,7 +39,7 @@ features:
     details: "Lighten, darken, saturate, desaturate, invert, grayscale, mix, rotate, adjust hue. Color harmony: complementary, analogous, triadic, split-complementary, tetradic."
   - icon: 🎨
     title: Color Palettes
-    details: "ANSI 16, ANSI 256, RGB6 cube, grayscale ramp, color ramps, gradients, color wheel, warm/cool/earth/pastel/neon palette subsets."
+    details: "ANSI 16, ANSI 256, RGB6 cube, grayscale ramp, color ramps, color wheel, warm/cool/earth/pastel/neon palette subsets."
   - icon: 📦
     title: Zero Dependencies
     details: "Pure Zig with no external dependencies. Minimal overhead, compile-time constants, efficient runtime construction. Cross-platform: Windows, Linux, macOS."

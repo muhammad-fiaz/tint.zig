@@ -9,7 +9,7 @@ tint.zig provides a minimal, direct API for terminal color and text styling.
 | `tint` | Main module — colors, styles, palettes, themes |
 | `color` | Color types and conversions (RGB, HEX, ANSI 256, HSL, HSV, CMYK, XYZ, Lab) |
 | `style` | Style composition, presets, and ANSI sequence generation |
-| `palette` | ANSI 16, ANSI 256, RGB cube, grayscale, ramps, gradients, color wheel |
+| `palette` | ANSI 16, ANSI 256, RGB cube, grayscale, ramps, color wheel |
 | `theme` | Theme construction and 16 built-in themes |
 
 ## Quick Reference
@@ -68,15 +68,6 @@ tint.palette.colorWheel(steps)                   // Hue wheel
 tint.palette.warm_palette                        // Warm colors
 tint.palette.cool_palette                        // Cool colors
 ```
-
-### Gradient Text
-
-```zig
-tint.fgGradient(text, colors)                    // Foreground gradient text
-tint.bgGradient(text, colors)                    // Background gradient text
-```
-
-Apply per-character foreground or background gradient. Supports 2+ color stops with smooth interpolation. Returns `[]const u8` from threadlocal buffers.
 
 ### Color Operations
 

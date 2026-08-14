@@ -112,38 +112,6 @@ pub fn named_color(comptime name: []const u8) Color {
     return Color{ .rgb = @field(Named, name) };
 }
 
-pub fn fgGradient(text: []const u8, colors: []const Color) []const u8 {
-    return Color.fgGradient(text, colors);
-}
-
-pub fn bgGradient(text: []const u8, colors: []const Color) []const u8 {
-    return Color.bgGradient(text, colors);
-}
-
-pub fn fade(c: Color, amount: f64) Color {
-    return c.fade(amount);
-}
-
-pub fn blend(c1: Color, c2: Color, ratio: f64) Color {
-    return c1.blend(c2, ratio);
-}
-
-pub fn mixHsl(c1: Color, c2: Color, ratio: f64) Color {
-    return c1.mixHsl(c2, ratio);
-}
-
-pub fn saturateTo(c: Color, target: u8) Color {
-    return c.saturateTo(target);
-}
-
-pub fn lightenTo(c: Color, target: u8) Color {
-    return c.lightenTo(target);
-}
-
-pub fn grayscaleLuminance(c: Color) Color {
-    return c.grayscaleLuminance();
-}
-
 test "reset codes" {
     try testing.expectEqualStrings("\x1b[0m", reset);
     try testing.expectEqualStrings("\x1b[22m", reset_bold);

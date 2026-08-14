@@ -391,8 +391,6 @@ pub const Color = union(enum) {
     threadlocal var bg_idx: usize = 0;
     threadlocal var ul_bufs: [NUM_BUFS][20]u8 = undefined;
     threadlocal var ul_idx: usize = 0;
-    threadlocal var grad_bufs: [4][8192]u8 = undefined;
-    threadlocal var grad_idx: usize = 0;
 
     fn nextFgb() *[20]u8 {
         const b = &fg_bufs[fg_idx % NUM_BUFS];
@@ -795,70 +793,6 @@ pub const Color = union(enum) {
         const new_s: u8 = @intFromFloat(@as(f64, @floatFromInt(h1.s)) * (1.0 - ratio) + @as(f64, @floatFromInt(h2.s)) * ratio);
         const new_l: u8 = @intFromFloat(@as(f64, @floatFromInt(h1.l)) * (1.0 - ratio) + @as(f64, @floatFromInt(h2.l)) * ratio);
         return .{ .hsl = HslColor.init(new_h, new_s, new_l) };
-    }
-
-    fn nextGrad() *[8192]u8 {
-        const b = &grad_bufs[grad_idx % 4];
-        grad_idx +%= 1;
-        return b;
-    }
-
-    fn buildGradientFg(text: []const u8, colors: []const Color) []const u8 {
-        const buf_ptr = nextGrad();
-        var pos: usize = 0;
-        const len = text.len;
-        if (len == 0 or colors.len == 0) return "";
-        for (text, 0..) |ch, i| {
-            const t = if (colors.len == 1) 0.0 else @as(f64, @floatFromInt(i)) / @as(f64, @floatFromInt(len - 1));
-            const segment = t * @as(f64, @floatFromInt(colors.len - 1));
-            const idx: usize = @intFromFloat(@min(@floor(segment), @as(f64, @floatFromInt(colors.len - 2))));
-            const local_t = segment - @as(f64, @floatFromInt(idx));
-            const c1 = colors[idx].toRgb();
-            const c2 = colors[@min(idx + 1, colors.len - 1)].toRgb();
-            const r: u8 = @intFromFloat(@as(f64, @floatFromInt(c1.r)) * (1.0 - local_t) + @as(f64, @floatFromInt(c2.r)) * local_t);
-            const g: u8 = @intFromFloat(@as(f64, @floatFromInt(c1.g)) * (1.0 - local_t) + @as(f64, @floatFromInt(c2.g)) * local_t);
-            const b: u8 = @intFromFloat(@as(f64, @floatFromInt(c1.b)) * (1.0 - local_t) + @as(f64, @floatFromInt(c2.b)) * local_t);
-            const seq = std.fmt.bufPrint(buf_ptr[pos..], "\x1b[38;2;{d};{d};{d}m{c}", .{ r, g, b, ch }) catch break;
-            pos += seq.len;
-        }
-        if (pos + 4 < buf_ptr.len) {
-            const reset = std.fmt.bufPrint(buf_ptr[pos..], "\x1b[0m", .{}) catch "";
-            pos += reset.len;
-        }
-        return buf_ptr[0..pos];
-    }
-
-    fn buildGradientBg(text: []const u8, colors: []const Color) []const u8 {
-        const buf_ptr = nextGrad();
-        var pos: usize = 0;
-        const len = text.len;
-        if (len == 0 or colors.len == 0) return "";
-        for (text, 0..) |ch, i| {
-            const t = if (colors.len == 1) 0.0 else @as(f64, @floatFromInt(i)) / @as(f64, @floatFromInt(len - 1));
-            const segment = t * @as(f64, @floatFromInt(colors.len - 1));
-            const idx: usize = @intFromFloat(@min(@floor(segment), @as(f64, @floatFromInt(colors.len - 2))));
-            const local_t = segment - @as(f64, @floatFromInt(idx));
-            const c1 = colors[idx].toRgb();
-            const c2 = colors[@min(idx + 1, colors.len - 1)].toRgb();
-            const r: u8 = @intFromFloat(@as(f64, @floatFromInt(c1.r)) * (1.0 - local_t) + @as(f64, @floatFromInt(c2.r)) * local_t);
-            const g: u8 = @intFromFloat(@as(f64, @floatFromInt(c1.g)) * (1.0 - local_t) + @as(f64, @floatFromInt(c2.g)) * local_t);
-            const b: u8 = @intFromFloat(@as(f64, @floatFromInt(c1.b)) * (1.0 - local_t) + @as(f64, @floatFromInt(c2.b)) * local_t);
-            const seq = std.fmt.bufPrint(buf_ptr[pos..], "\x1b[48;2;{d};{d};{d}m{c}", .{ r, g, b, ch }) catch break;
-            pos += seq.len;
-        }
-        if (pos + 4 < buf_ptr.len) {
-            const reset = std.fmt.bufPrint(buf_ptr[pos..], "\x1b[0m", .{}) catch "";
-            pos += reset.len;
-        }
-        return buf_ptr[0..pos];
-    }
-
-    pub fn fgGradient(text: []const u8, colors: []const Color) []const u8 {
-        return buildGradientFg(text, colors);
-    }
-
-    pub fn bgGradient(text: []const u8, colors: []const Color) []const u8 {
-        return buildGradientBg(text, colors);
     }
 };
 
@@ -1297,22 +1231,4 @@ test "Color grayscaleLuminance" {
     const rgb = g.toRgb();
     try testing.expectEqual(rgb.r, rgb.g);
     try testing.expectEqual(rgb.g, rgb.b);
-}
-
-test "Color fgGradient" {
-    const colors = [_]Color{
-        Color{ .rgb = RgbColor.init(255, 0, 0) },
-        Color{ .rgb = RgbColor.init(0, 0, 255) },
-    };
-    const result = Color.fgGradient("Hi", &colors);
-    try testing.expect(result.len > 0);
-}
-
-test "Color bgGradient" {
-    const colors = [_]Color{
-        Color{ .rgb = RgbColor.init(255, 0, 0) },
-        Color{ .rgb = RgbColor.init(0, 0, 255) },
-    };
-    const result = Color.bgGradient("Hi", &colors);
-    try testing.expect(result.len > 0);
 }
