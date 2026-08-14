@@ -18,7 +18,7 @@ pub fn main() void {
     std.debug.print("\n=== Hue Spectrum ===\n", .{});
     var h: u16 = 0;
     while (h < 360) : (h += 15) {
-        std.debug.print("{s}█{s}", .{ tint.fg(tint.hsv(h, 100, 100)), tint.reset });
+        std.debug.print("{s}#{s}", .{ tint.fg(tint.hsv(h, 100, 100)), tint.reset });
     }
     std.debug.print("\n", .{});
 

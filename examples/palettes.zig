@@ -20,7 +20,7 @@ pub fn main() void {
     i = 0;
     while (i < 256) : (i += 1) {
         const c = tint.palette.ansi256[i];
-        std.debug.print("{s}██{s}", .{
+        std.debug.print("{s}##{s}", .{
             tint.fg(tint.rgb(c.r, c.g, c.b)),
             tint.reset,
         });
@@ -39,7 +39,7 @@ pub fn main() void {
             while (b < 6) : (b += 1) {
                 const result = tint.palette.rgb6(r, g, b);
                 const c = tint.palette.ansi256[result.index];
-                std.debug.print("{s}██{s}", .{
+                std.debug.print("{s}##{s}", .{
                     tint.fg(tint.rgb(c.r, c.g, c.b)),
                     tint.reset,
                 });
@@ -55,7 +55,7 @@ pub fn main() void {
     while (i < 24) : (i += 1) {
         const result = tint.palette.gray(@intCast(i));
         const c = tint.palette.ansi256[result.index];
-        std.debug.print("{s}██{s}", .{
+        std.debug.print("{s}##{s}", .{
             tint.fg(tint.rgb(c.r, c.g, c.b)),
             tint.reset,
         });

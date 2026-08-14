@@ -100,8 +100,8 @@ pub fn main() void {
         .muted = tint.hex(0x6B7280),
     };
 
-    std.debug.print("{s}Primary: {s}████████{s}\n", .{ tint.fg(theme.primary), tint.bg(theme.primary), tint.reset });
-    std.debug.print("{s}Error: {s}████████{s}\n", .{ tint.fg(theme.err), tint.bg(theme.err), tint.reset });
+    std.debug.print("{s}Primary: {s}########{s}\n", .{ tint.fg(theme.primary), tint.bg(theme.primary), tint.reset });
+    std.debug.print("{s}Error: {s}########{s}\n", .{ tint.fg(theme.err), tint.bg(theme.err), tint.reset });
 
     // Style composition
     std.debug.print("\n--- Style Composition ---\n", .{});

@@ -25,7 +25,7 @@ pub fn main() void {
     std.debug.print("\n=== Gradient ===\n", .{});
     var r: u8 = 0;
     while (r < 255) : (r += 17) {
-        std.debug.print("{s}█{s}", .{ tint.fg(tint.rgb(r, 0, 255 - r)), tint.reset });
+        std.debug.print("{s}#{s}", .{ tint.fg(tint.rgb(r, 0, 255 - r)), tint.reset });
     }
     std.debug.print("\n", .{});
 }

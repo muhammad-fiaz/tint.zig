@@ -15,31 +15,31 @@ pub fn main() void {
     // Analogous
     std.debug.print("\n--- Analogous ---\n", .{});
     const analogous = base.analogous();
-    std.debug.print("{s}Analogous -30°{s}\n", .{ tint.fg(analogous[0]), tint.reset });
+    std.debug.print("{s}Analogous -30deg{s}\n", .{ tint.fg(analogous[0]), tint.reset });
     std.debug.print("{s}Base{s}\n", .{ tint.fg(base), tint.reset });
-    std.debug.print("{s}Analogous +30°{s}\n", .{ tint.fg(analogous[1]), tint.reset });
+    std.debug.print("{s}Analogous +30deg{s}\n", .{ tint.fg(analogous[1]), tint.reset });
 
     // Triadic
     std.debug.print("\n--- Triadic ---\n", .{});
     const triadic = base.triadic();
     std.debug.print("{s}Base{s}\n", .{ tint.fg(base), tint.reset });
-    std.debug.print("{s}Triadic +120°{s}\n", .{ tint.fg(triadic[0]), tint.reset });
-    std.debug.print("{s}Triadic +240°{s}\n", .{ tint.fg(triadic[1]), tint.reset });
+    std.debug.print("{s}Triadic +120deg{s}\n", .{ tint.fg(triadic[0]), tint.reset });
+    std.debug.print("{s}Triadic +240deg{s}\n", .{ tint.fg(triadic[1]), tint.reset });
 
     // Split complementary
     std.debug.print("\n--- Split Complementary ---\n", .{});
     const split = base.splitComplementary();
     std.debug.print("{s}Base{s}\n", .{ tint.fg(base), tint.reset });
-    std.debug.print("{s}Split +150°{s}\n", .{ tint.fg(split[0]), tint.reset });
-    std.debug.print("{s}Split +210°{s}\n", .{ tint.fg(split[1]), tint.reset });
+    std.debug.print("{s}Split +150deg{s}\n", .{ tint.fg(split[0]), tint.reset });
+    std.debug.print("{s}Split +210deg{s}\n", .{ tint.fg(split[1]), tint.reset });
 
     // Tetradic
     std.debug.print("\n--- Tetradic ---\n", .{});
     const tetradic = base.tetradic();
     std.debug.print("{s}Base{s}\n", .{ tint.fg(base), tint.reset });
-    std.debug.print("{s}Tetradic +90°{s}\n", .{ tint.fg(tetradic[0]), tint.reset });
-    std.debug.print("{s}Tetradic +180°{s}\n", .{ tint.fg(tetradic[1]), tint.reset });
-    std.debug.print("{s}Tetradic +270°{s}\n", .{ tint.fg(tetradic[2]), tint.reset });
+    std.debug.print("{s}Tetradic +90deg{s}\n", .{ tint.fg(tetradic[0]), tint.reset });
+    std.debug.print("{s}Tetradic +180deg{s}\n", .{ tint.fg(tetradic[1]), tint.reset });
+    std.debug.print("{s}Tetradic +270deg{s}\n", .{ tint.fg(tetradic[2]), tint.reset });
 
     // Different base color
     std.debug.print("\n--- Blue Harmony ---\n", .{});
