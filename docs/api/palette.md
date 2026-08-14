@@ -78,6 +78,22 @@ pub fn gradient(c1: RgbColor, c2: RgbColor, c3: RgbColor, steps: u8) [256]RgbCol
 
 Generates a three-color gradient.
 
+### multiGradient
+
+```zig
+pub fn multiGradient(stops: []const RgbColor, steps: u8) [256]RgbColor
+```
+
+Generates a multi-stop gradient between an array of color stops. Interpolates linearly between consecutive stops.
+
+### hueGradient
+
+```zig
+pub fn hueGradient(steps: u8) [256]RgbColor
+```
+
+Generates a rainbow gradient by rotating through the full hue range in HSL space.
+
 ### colorWheel
 
 ```zig

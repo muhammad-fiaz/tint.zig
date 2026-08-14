@@ -28,6 +28,7 @@ pub fn build(b: *std.Build) void {
         .{ .name = "palettes", .path = "examples/palettes.zig" },
         .{ .name = "themes", .path = "examples/themes.zig" },
         .{ .name = "themes_extended", .path = "examples/themes_extended.zig" },
+        .{ .name = "gradient", .path = "examples/gradient.zig" },
         .{ .name = "composition", .path = "examples/composition.zig" },
         .{ .name = "complete", .path = "examples/complete.zig" },
     };

@@ -62,9 +62,31 @@ tint.palette.rgb6(r, g, b)                       // RGB cube
 tint.palette.gray(level)                         // Grayscale
 tint.palette.ramp(start, end, steps)             // Color ramp
 tint.palette.gradient(c1, c2, c3, steps)        // 3-color gradient
+tint.palette.multiGradient(stops, steps)         // Multi-stop gradient
+tint.palette.hueGradient(steps)                  // Rainbow gradient
 tint.palette.colorWheel(steps)                   // Hue wheel
 tint.palette.warm_palette                        // Warm colors
 tint.palette.cool_palette                        // Cool colors
+```
+
+### Gradient Text
+
+```zig
+tint.fgGradient(text, colors)                    // Foreground gradient text
+tint.bgGradient(text, colors)                    // Background gradient text
+```
+
+Apply per-character foreground or background gradient. Supports 2+ color stops with smooth interpolation. Returns `[]const u8` from threadlocal buffers.
+
+### Color Operations
+
+```zig
+color.fade(amount)                               // Fade toward gray (0.0=gray, 1.0=original)
+color.blend(other, ratio)                        // Blend two colors (alias for mix)
+color.grayscaleLuminance()                       // Perceptual luminance grayscale
+color.saturateTo(target)                         // Set saturation to exact value (0-100)
+color.lightenTo(target)                          // Set lightness to exact value (0-100)
+color.mixHsl(other, ratio)                       // Mix two colors in HSL space
 ```
 
 ### Themes

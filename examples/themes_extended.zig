@@ -27,14 +27,14 @@ pub fn main() void {
     for (themes) |t| {
         std.debug.print("--- {s} ---\n", .{t.name});
         std.debug.print("{s}Primary{s} | {s}Secondary{s} | {s}Success{s} | {s}Warning{s} | {s}Error{s} | {s}Info{s} | {s}Text{s} | {s}Muted{s}\n", .{
-            tint.fg(t.theme.primary), tint.reset,
+            tint.fg(t.theme.primary),   tint.reset,
             tint.fg(t.theme.secondary), tint.reset,
-            tint.fg(t.theme.success), tint.reset,
-            tint.fg(t.theme.warning), tint.reset,
-            tint.fg(t.theme.err), tint.reset,
-            tint.fg(t.theme.info), tint.reset,
-            tint.fg(t.theme.text), tint.reset,
-            tint.fg(t.theme.muted), tint.reset,
+            tint.fg(t.theme.success),   tint.reset,
+            tint.fg(t.theme.warning),   tint.reset,
+            tint.fg(t.theme.err),       tint.reset,
+            tint.fg(t.theme.info),      tint.reset,
+            tint.fg(t.theme.text),      tint.reset,
+            tint.fg(t.theme.muted),     tint.reset,
         });
         std.debug.print("\n", .{});
     }

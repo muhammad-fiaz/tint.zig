@@ -289,3 +289,39 @@ pub fn temperatureToRgb(temp: u16) RgbColor
 ```
 
 Color temperature in Kelvin (1000-40000).
+
+### fade / blend
+
+```zig
+pub fn fade(self: Color, amount: f64) Color
+pub fn blend(self: Color, other: Color, ratio: f64) Color
+```
+
+Fade a color toward gray (0.0 = gray, 1.0 = original). Blend is an alias for mix.
+
+### saturateTo / lightenTo
+
+```zig
+pub fn saturateTo(self: Color, target: u8) Color
+pub fn lightenTo(self: Color, target: u8) Color
+```
+
+Set saturation or lightness to a specific value (0-100).
+
+### grayscaleLuminance / mixHsl
+
+```zig
+pub fn grayscaleLuminance(self: Color) Color
+pub fn mixHsl(self: Color, other: Color, ratio: f64) Color
+```
+
+Grayscale using perceptual luminance. Mix two colors in HSL space.
+
+### fgGradient / bgGradient
+
+```zig
+pub fn fgGradient(text: []const u8, colors: []const Color) []const u8
+pub fn bgGradient(text: []const u8, colors: []const Color) []const u8
+```
+
+Apply a gradient to text characters. Supports 2+ color stops with smooth interpolation.

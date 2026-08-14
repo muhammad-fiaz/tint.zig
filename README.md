@@ -42,6 +42,7 @@ tint.zig is a fast, minimal, zero dependency terminal color and text styling lib
 - **Color Temperature** — Kelvin to RGB conversion (1000K-40000K)
 - **Named Colors** — 140+ CSS/X11 named colors as RGB values
 - **Palettes** — ANSI 16, ANSI 256, RGB6 cube, grayscale ramp, color ramps, gradients, color wheel, warm/cool/earth/pastel/neon subsets
+- **Gradient Text** — Per-character foreground and background gradient text rendering
 - **Zero Dependencies** — Pure Zig with no external dependencies
 - **Client-Owned Output** — The library constructs ANSI codes; your application owns all output
 - **Cross-Platform** — Windows, Linux, macOS, FreeBSD
@@ -201,6 +202,7 @@ pub fn main() void {
 | Palettes | Color palette access | [`examples/palettes.zig`](examples/palettes.zig) |
 | Themes | Theme system | [`examples/themes.zig`](examples/themes.zig) |
 | Themes Extended | All 16 built-in themes | [`examples/themes_extended.zig`](examples/themes_extended.zig) |
+| Gradient | Gradient text, color manipulation, palettes | [`examples/gradient.zig`](examples/gradient.zig) |
 | Composition | Style composition | [`examples/composition.zig`](examples/composition.zig) |
 | Complete | Full feature showcase | [`examples/complete.zig`](examples/complete.zig) |
 
@@ -246,6 +248,9 @@ Your application owns all output.
 - [x] Color harmony (complementary, analogous, triadic, split-complementary, tetradic)
 - [x] Color analysis (luminance, contrast ratio, distance, nearest ANSI 256)
 - [x] Color temperature (Kelvin to RGB)
+- [x] Gradient text (foreground and background per-character gradients)
+- [x] Color operations (fade, blend, grayscaleLuminance, saturateTo, lightenTo, mixHsl)
+- [x] Multi-stop palette gradients and rainbow hue gradients
 - [x] Underline color support
 - [x] ANSI 16 and ANSI 256 palette access
 - [x] Color ramps, gradients, and color wheel

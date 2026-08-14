@@ -5,7 +5,7 @@ import llmstxt from "vitepress-plugin-llms";
 export const SITE_URL = "https://muhammad-fiaz.github.io/tint.zig";
 export const SITE_NAME = "tint.zig";
 export const SITE_DESCRIPTION =
-  "A comprehensive, explicit terminal color and text styling library for Zig, supporting ANSI, bright ANSI, 256-color, RGB, HEX, HSL, HSV, CMYK, LAB, XYZ, palettes, themes, composable styles, cursor control, and terminal management.";
+  "A comprehensive, explicit terminal color and text styling library for Zig, supporting ANSI, bright ANSI, 256-color, RGB, HEX, HSL, HSV, CMYK, LAB, XYZ, palettes, themes, composable styles, gradients, and color manipulation.";
 
 // Google Analytics and Google Tag Manager IDs
 export const GA_ID = "G-6BVYCRK57P";
@@ -16,7 +16,7 @@ export const ADSENSE_CLIENT_ID = "ca-pub-2040560600290490";
 
 // SEO Keywords
 export const KEYWORDS =
-  "zig, terminal, color, ansi, style, rgb, hex, truecolor, 256-color, palette, theme, styling, escape, sgr, text, formatting, cli, cmyk, lab, xyz, cursor, hsl, hsv, color-manipulation, terminal-control, zig-library";
+  "zig, terminal, color, ansi, style, rgb, hex, truecolor, 256-color, palette, theme, styling, escape, sgr, text, formatting, cli, cmyk, lab, xyz, hsl, hsv, color-manipulation, gradient";
 
 export default defineConfig({
   lang: "en-US",
@@ -317,10 +317,9 @@ gtag('config', '${GA_ID}');`,
           "Color harmony (complementary, analogous, triadic, split-complementary, tetradic)",
           "Color distance and contrast ratio",
           "Color temperature (Kelvin to RGB)",
-          "Cursor control",
-          "Mouse tracking",
-          "Terminal management",
-          "Color palettes and gradients",
+          "Gradient text (foreground/background per-character gradients)",
+          "Color operations (fade, blend, grayscaleLuminance, saturateTo, lightenTo, mixHsl)",
+          "Multi-stop palette gradients and rainbow hue gradients",
           "Zero dependencies",
           "Cross-platform (Windows, Linux, macOS)",
         ],
@@ -450,6 +449,7 @@ gtag('config', '${GA_ID}');`,
           { text: "Color Harmony", link: "/examples/color-harmony" },
           { text: "Color Analysis", link: "/examples/color-analysis" },
           { text: "Presets", link: "/examples/presets" },
+          { text: "Gradient", link: "/examples/gradient" },
           { text: "Themes Extended", link: "/examples/themes-extended" },
         ],
       },

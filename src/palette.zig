@@ -182,6 +182,83 @@ pub fn colorWheel(steps: u8) [256]RgbColor {
     return result;
 }
 
+pub fn multiGradient(stops: []const RgbColor, steps: u8) [256]RgbColor {
+    var result: [256]RgbColor = undefined;
+    if (stops.len == 0) return result;
+    if (stops.len == 1) {
+        var i: u16 = 0;
+        while (i <= steps) : (i += 1) {
+            result[i] = stops[0];
+        }
+        return result;
+    }
+    const n = @min(steps, @as(u8, 255));
+    var i: u16 = 0;
+    while (i <= n) : (i += 1) {
+        const t = @as(f64, @floatFromInt(i)) / @as(f64, @floatFromInt(n));
+        const segment = t * @as(f64, @floatFromInt(stops.len - 1));
+        const idx: usize = @intFromFloat(@min(@floor(segment), @as(f64, @floatFromInt(stops.len - 2))));
+        const local_t = segment - @as(f64, @floatFromInt(idx));
+        const c1 = stops[idx];
+        const c2 = stops[@min(idx + 1, stops.len - 1)];
+        result[i] = .{
+            .r = @intFromFloat(@as(f64, @floatFromInt(c1.r)) * (1.0 - local_t) + @as(f64, @floatFromInt(c2.r)) * local_t),
+            .g = @intFromFloat(@as(f64, @floatFromInt(c1.g)) * (1.0 - local_t) + @as(f64, @floatFromInt(c2.g)) * local_t),
+            .b = @intFromFloat(@as(f64, @floatFromInt(c1.b)) * (1.0 - local_t) + @as(f64, @floatFromInt(c2.b)) * local_t),
+        };
+    }
+    return result;
+}
+
+pub fn hueGradient(steps: u8) [256]RgbColor {
+    var result: [256]RgbColor = undefined;
+    const n = @min(steps, @as(u8, 255));
+    var i: u16 = 0;
+    while (i <= n) : (i += 1) {
+        const hue = @as(f64, @floatFromInt(i)) / @as(f64, @floatFromInt(n)) * 360.0;
+        const h_f = hue;
+        const s_f = 1.0;
+        const l_f = 0.5;
+        const c = (1.0 - @abs(2.0 * l_f - 1.0)) * s_f;
+        const x = c * (1.0 - @abs(@rem(h_f / 60.0, 2.0) - 1.0));
+        const m = l_f - c / 2.0;
+        var r: f64 = 0;
+        var g: f64 = 0;
+        var b: f64 = 0;
+        if (h_f < 60) {
+            r = c;
+            g = x;
+            b = 0;
+        } else if (h_f < 120) {
+            r = x;
+            g = c;
+            b = 0;
+        } else if (h_f < 180) {
+            r = 0;
+            g = c;
+            b = x;
+        } else if (h_f < 240) {
+            r = 0;
+            g = x;
+            b = c;
+        } else if (h_f < 300) {
+            r = x;
+            g = 0;
+            b = c;
+        } else {
+            r = c;
+            g = 0;
+            b = x;
+        }
+        result[i] = .{
+            .r = @intFromFloat((r + m) * 255.0),
+            .g = @intFromFloat((g + m) * 255.0),
+            .b = @intFromFloat((b + m) * 255.0),
+        };
+    }
+    return result;
+}
+
 pub const warm_palette = [8]RgbColor{
     .{ .r = 255, .g = 0, .b = 0 },
     .{ .r = 255, .g = 69, .b = 0 },
@@ -283,4 +360,21 @@ test "colorWheel generates rainbow" {
     const w = colorWheel(12);
     try testing.expect(w[0].r > 0);
     try testing.expect(w[6].g > 0);
+}
+
+test "multiGradient generates colors" {
+    const stops = [_]RgbColor{
+        .{ .r = 255, .g = 0, .b = 0 },
+        .{ .r = 0, .g = 255, .b = 0 },
+        .{ .r = 0, .g = 0, .b = 255 },
+    };
+    const g = multiGradient(&stops, 10);
+    try testing.expectEqual(@as(u8, 255), g[0].r);
+    try testing.expect(g[5].g > 0);
+}
+
+test "hueGradient generates rainbow" {
+    const h = hueGradient(12);
+    try testing.expect(h[0].r > 0);
+    try testing.expect(h[6].g > 0);
 }
