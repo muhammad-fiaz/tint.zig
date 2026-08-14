@@ -13,18 +13,38 @@ pub const Theme = struct {
     info: Color,
     text: Color,
     muted: Color,
+    background: Color,
+    surface: Color,
 
-    pub fn init(name: []const u8, primary: Color, secondary: Color, success: Color, warning: Color, err: Color, info: Color, text: Color, muted: Color) Theme {
+    pub fn init(name: []const u8, primary: Color, secondary: Color, success: Color, warning: Color, err_color: Color, info: Color, text: Color, muted: Color) Theme {
         return .{
             .name = name,
             .primary = primary,
             .secondary = secondary,
             .success = success,
             .warning = warning,
-            .err = err,
+            .err = err_color,
             .info = info,
             .text = text,
             .muted = muted,
+            .background = text,
+            .surface = muted,
+        };
+    }
+
+    pub fn initWithBackground(name: []const u8, primary: Color, secondary: Color, success: Color, warning: Color, err_color: Color, info: Color, text: Color, muted: Color, background: Color, surface: Color) Theme {
+        return .{
+            .name = name,
+            .primary = primary,
+            .secondary = secondary,
+            .success = success,
+            .warning = warning,
+            .err = err_color,
+            .info = info,
+            .text = text,
+            .muted = muted,
+            .background = background,
+            .surface = surface,
         };
     }
 };

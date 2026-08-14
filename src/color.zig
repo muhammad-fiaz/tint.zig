@@ -704,6 +704,20 @@ pub const Color = union(enum) {
         return .{ self.rotate(90), self.rotate(180), self.rotate(270) };
     }
 
+    pub fn monochromatic(self: Color, count: u8) [8]Color {
+        var result: [8]Color = undefined;
+        const n = @min(count, @as(u8, 8));
+        var i: u8 = 0;
+        while (i < n) : (i += 1) {
+            const t = @as(f64, @floatFromInt(i)) / @as(f64, @floatFromInt(n -| 1));
+            result[i] = if (t < 0.5)
+                self.lighten(t * 2.0)
+            else
+                self.darken((t - 0.5) * 2.0);
+        }
+        return result;
+    }
+
     pub fn isLight(self: Color) bool {
         return self.luminance() > 0.5;
     }

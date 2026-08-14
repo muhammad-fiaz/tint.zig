@@ -373,6 +373,82 @@ test "multiGradient generates colors" {
     try testing.expect(g[5].g > 0);
 }
 
+pub const ansi88 = generateAnsi88();
+
+fn generateAnsi88() [88]AnsiRgb {
+    var palette_arr: [88]AnsiRgb = undefined;
+    // 16 standard colors (indices 0-15)
+    palette_arr[0] = .{ .r = 0, .g = 0, .b = 0 };
+    palette_arr[1] = .{ .r = 170, .g = 0, .b = 0 };
+    palette_arr[2] = .{ .r = 0, .g = 170, .b = 0 };
+    palette_arr[3] = .{ .r = 170, .g = 170, .b = 0 };
+    palette_arr[4] = .{ .r = 0, .g = 0, .b = 170 };
+    palette_arr[5] = .{ .r = 170, .g = 0, .b = 170 };
+    palette_arr[6] = .{ .r = 0, .g = 170, .b = 170 };
+    palette_arr[7] = .{ .r = 170, .g = 170, .b = 170 };
+    palette_arr[8] = .{ .r = 85, .g = 85, .b = 85 };
+    palette_arr[9] = .{ .r = 255, .g = 85, .b = 85 };
+    palette_arr[10] = .{ .r = 85, .g = 255, .b = 85 };
+    palette_arr[11] = .{ .r = 255, .g = 255, .b = 85 };
+    palette_arr[12] = .{ .r = 85, .g = 85, .b = 255 };
+    palette_arr[13] = .{ .r = 255, .g = 85, .b = 255 };
+    palette_arr[14] = .{ .r = 85, .g = 255, .b = 255 };
+    palette_arr[15] = .{ .r = 255, .g = 255, .b = 255 };
+    // 8x8x8 color cube (indices 16-79)
+    comptime var i: u16 = 16;
+    inline while (i < 80) : (i += 1) {
+        const idx = i - 16;
+        const b_val: u8 = @intCast(idx % 8);
+        const g_val: u8 = @intCast((idx / 8) % 8);
+        const r_val: u8 = @intCast(idx / 64);
+        palette_arr[i] = .{
+            .r = if (r_val == 0) 0 else 55 + r_val * 40,
+            .g = if (g_val == 0) 0 else 55 + g_val * 40,
+            .b = if (b_val == 0) 0 else 55 + b_val * 40,
+        };
+    }
+    // 8 grayscale ramp (indices 80-87)
+    comptime var j: u16 = 80;
+    inline while (j < 88) : (j += 1) {
+        const gray_val: u8 = @intCast(8 + (j - 80) * 32);
+        palette_arr[j] = .{ .r = gray_val, .g = gray_val, .b = gray_val };
+    }
+    return palette_arr;
+}
+
+pub const ansi88_names = [_][]const u8{
+    "black",        "red",            "green",        "yellow",
+    "blue",         "magenta",        "cyan",         "white",
+    "bright_black", "bright_red",     "bright_green", "bright_yellow",
+    "bright_blue",  "bright_magenta", "bright_cyan",  "bright_white",
+    "cube_0",       "cube_1",         "cube_2",       "cube_3",
+    "cube_4",       "cube_5",         "cube_6",       "cube_7",
+    "cube_8",       "cube_9",         "cube_10",      "cube_11",
+    "cube_12",      "cube_13",        "cube_14",      "cube_15",
+    "cube_16",      "cube_17",        "cube_18",      "cube_19",
+    "cube_20",      "cube_21",        "cube_22",      "cube_23",
+    "cube_24",      "cube_25",        "cube_26",      "cube_27",
+    "cube_28",      "cube_29",        "cube_30",      "cube_31",
+    "cube_32",      "cube_33",        "cube_34",      "cube_35",
+    "cube_36",      "cube_37",        "cube_38",      "cube_39",
+    "cube_40",      "cube_41",        "cube_42",      "cube_43",
+    "cube_44",      "cube_45",        "cube_46",      "cube_47",
+    "cube_48",      "cube_49",        "cube_50",      "cube_51",
+    "cube_52",      "cube_53",        "cube_54",      "cube_55",
+    "cube_56",      "cube_57",        "cube_58",      "cube_59",
+    "cube_60",      "cube_61",        "cube_62",      "cube_63",
+    "gray_0",       "gray_1",         "gray_2",       "gray_3",
+    "gray_4",       "gray_5",         "gray_6",       "gray_7",
+};
+
+pub fn rgb8(r: u8, g: u8, b: u8) struct { index: u8 } {
+    return .{ .index = 16 + 64 * r + 8 * g + b };
+}
+
+pub fn gray88(level: u8) struct { index: u8 } {
+    return .{ .index = 80 + level };
+}
+
 test "hueGradient generates rainbow" {
     const h = hueGradient(12);
     try testing.expect(h[0].r > 0);

@@ -33,6 +33,12 @@ pub const reset_reverse = ESC ++ "27" ++ END;
 pub const reset_hidden = ESC ++ "28" ++ END;
 pub const reset_strikethrough = ESC ++ "29" ++ END;
 pub const reset_overline = ESC ++ "55" ++ END;
+pub const reset_rapid_blink = ESC ++ "25" ++ END;
+pub const reset_fraktur = ESC ++ "23" ++ END;
+pub const reset_frame = ESC ++ "54" ++ END;
+pub const reset_encircle = ESC ++ "54" ++ END;
+pub const reset_super_script = ESC ++ "75" ++ END;
+pub const reset_sub_script = ESC ++ "75" ++ END;
 pub const reset_fg = ESC ++ "39" ++ END;
 pub const reset_bg = ESC ++ "49" ++ END;
 pub const reset_underline_color = ESC ++ "59" ++ END;
@@ -73,6 +79,16 @@ pub fn fg256(index: u8) []const u8 {
 }
 
 pub fn bg256(index: u8) []const u8 {
+    return bg(ansi256(index));
+}
+
+pub fn fg88(index: u8) []const u8 {
+    if (index > 87) return fg256(0);
+    return fg(ansi256(index));
+}
+
+pub fn bg88(index: u8) []const u8 {
+    if (index > 87) return bg256(0);
     return bg(ansi256(index));
 }
 

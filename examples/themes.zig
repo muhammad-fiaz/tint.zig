@@ -25,6 +25,8 @@ pub fn main() void {
         .info = tint.hex(0x3B82F6),
         .text = tint.hex(0xE5E7EB),
         .muted = tint.hex(0x6B7280),
+        .background = tint.hex(0x1F2937),
+        .surface = tint.hex(0x374151),
     };
     std.debug.print("{s}Custom Primary{s}\n", .{ tint.fg(custom.primary), tint.reset });
     std.debug.print("{s}Custom Error{s}\n", .{ tint.fg(custom.err), tint.reset });
