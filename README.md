@@ -16,10 +16,12 @@
 [![Sponsor](https://img.shields.io/badge/sponsor-%E2%9D%A4-red.svg)](https://github.com/sponsors/muhammad-fiaz)
 [![Visitors](https://api.visitorbadge.io/api/visitors?path=muhammad-fiaz%2Ftint.zig&countColor=%2337d67a&style=flat)](https://visitorbadge.io)
 
+**[Documentation](https://muhammad-fiaz.github.io/tint.zig/) | [Examples](examples/) | [API Reference](docs/api/)**
+
+
 </div>
 
 
----
 
 tint.zig is a fast, minimal, zero dependency terminal color and text styling library for Zig 0.16.0+. It provides ANSI/SGR escape sequence constructors for foreground, background, and underline colors, text attributes, composable styles, themes, and color palettes, without owning your application's output.
 
@@ -27,7 +29,6 @@ tint.zig is a fast, minimal, zero dependency terminal color and text styling lib
 > tint.zig constructs ANSI escape sequences and returns them to the caller. Your application owns all output. The library never prints to stdout/stderr, modifies terminal state, or auto-detects capabilities.
 
 
----
 
 <details>
 <summary><strong>Features</strong></summary>
@@ -56,7 +57,6 @@ tint.zig is a fast, minimal, zero dependency terminal color and text styling lib
 
 </details>
 
----
 
 ## Installation
 
@@ -120,7 +120,6 @@ pub fn build(b: *std.Build) void {
 }
 ```
 
----
 
 ## Quick Start
 
@@ -153,7 +152,6 @@ pub fn main() void {
 > [!TIP]
 > Use `tint.style()` to create reusable, composable styles. Call `.with()` to extend a style without modifying the original.
 
----
 
 ## API Overview
 
@@ -176,7 +174,6 @@ pub fn main() void {
 > [!NOTE]
 > All color functions return `[]const u8` containing the ANSI escape sequence. The library never owns the writer or modifies terminal state.
 
----
 
 ## Examples
 
@@ -212,7 +209,6 @@ zig build run-basic
 zig build run-complete
 ```
 
----
 
 ## Design Philosophy
 
@@ -228,7 +224,6 @@ The library never:
 
 Your application owns all output.
 
----
 
 ## Validation
 
@@ -256,13 +251,11 @@ Your application owns all output.
 - [x] Zero external dependencies
 - [x] Cross-platform (Windows, Linux, macOS, FreeBSD)
 
----
 
 ## Security
 
 For security concerns, please see [SECURITY.md](SECURITY.md).
 
----
 
 ## Contributing
 
@@ -271,22 +264,9 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for det
 > [!TIP]
 > If you find tint.zig useful, please consider giving it a star on GitHub. It helps others discover the project and motivates continued development.
 
----
 
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
 
 ---
-
-## Contact
-
-- **Author:** Muhammad Fiaz
-- **Email:** contact@muhammadfiaz.com
-- **GitHub:** [muhammad-fiaz/tint.zig](https://github.com/muhammad-fiaz/tint.zig)
-
-<div align="center">
-
-**[Documentation](https://muhammad-fiaz.github.io/tint.zig/) | [Examples](examples/) | [API Reference](docs/api/)**
-
-</div>
