@@ -84,4 +84,25 @@ zig build run-themes_extended
 
 ## Source
 
-{{Include:examples/themes_extended.zig}}
+```zig
+const std = @import("std");
+const tint = @import("tint");
+
+pub fn main() void {
+    std.debug.print("=== All Built-in Themes ===\n\n", .{});
+    const themes = [_]struct { name: []const u8, theme: tint.Theme }{
+        .{ .name = "dark", .theme = tint.themes.dark_theme },
+        .{ .name = "light", .theme = tint.themes.light_theme },
+        .{ .name = "dracula", .theme = tint.themes.dracula_theme },
+        .{ .name = "nord", .theme = tint.themes.nord_theme },
+        // ... all 17 themes
+    };
+    for (themes) |t| {
+        std.debug.print("--- {s} ---\n", .{t.name});
+        std.debug.print("{s}Primary{s} | {s}Error{s}\n", .{
+            tint.fg(t.theme.primary), tint.reset,
+            tint.fg(t.theme.err), tint.reset,
+        });
+    }
+}
+```

@@ -4,7 +4,26 @@ Demonstrates how to build foreground and background gradient text using the libr
 
 ## Source
 
-{{Include:examples/gradient.zig}}
+```zig
+const std = @import("std");
+const tint = @import("tint");
+
+pub fn main() void {
+    std.debug.print("\n=== Foreground Gradient (2 colors) ===\n", .{});
+    {
+        const text = "Gradient text using lerp!";
+        const c1 = tint.Color{ .rgb = tint.RgbColor.init(255, 0, 0) };
+        const c2 = tint.Color{ .rgb = tint.RgbColor.init(0, 0, 255) };
+        for (text, 0..) |ch, i| {
+            const t = @as(f64, @floatFromInt(i)) / @as(f64, @floatFromInt(text.len - 1));
+            const c = tint.Color.lerp(c1, c2, t);
+            std.debug.print("{s}{c}{s}", .{ c.toFg(), ch, tint.reset });
+        }
+        std.debug.print("\n", .{});
+    }
+    // ... more gradient examples
+}
+```
 
 ## Running
 

@@ -61,4 +61,21 @@ zig build run-presets
 
 ## Source
 
-{{Include:examples/presets.zig}}
+```zig
+const std = @import("std");
+const tint = @import("tint");
+
+pub fn main() void {
+    const err = tint.presets.err_style(.{ .ansi4 = .red });
+    std.debug.print("{s}Error: Something went wrong!{s}\n", .{ err.toAnsi(), tint.reset });
+
+    const warn = tint.presets.warning(.{ .ansi4 = .yellow });
+    std.debug.print("{s}Warning: Check your input.{s}\n", .{ warn.toAnsi(), tint.reset });
+
+    const strike = tint.presets.strikethrough_text(.{ .ansi4 = .red });
+    std.debug.print("{s}Deleted text{s}\n", .{ strike.toAnsi(), tint.reset });
+
+    const framed = tint.presets.framed(.{ .ansi4 = .blue });
+    std.debug.print("{s}Framed text{s}\n", .{ framed.toAnsi(), tint.reset });
+}
+```
