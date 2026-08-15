@@ -1,5 +1,6 @@
 <div align="center">
 
+<img src="docs/public/android-chrome-512x512.png" alt="tint.zig" width="250" />
 
 # tint.zig
 
@@ -109,19 +110,23 @@ zig build -Dtarget=aarch64-macos
 
 ### Method 1: Zig Fetch (Recommended)
 
+**Stable Release (v0.0.1):**
+
+```bash
+zig fetch --save https://github.com/muhammad-fiaz/tint.zig/archive/refs/tags/v0.0.1.tar.gz
+```
+
+**Development Branch:**
+
 ```bash
 zig fetch --save git+https://github.com/muhammad-fiaz/tint.zig.git
 ```
 
-### Method 2: Zig Fetch (Tagged Release)
-
-```bash
-zig fetch --save git+https://github.com/muhammad-fiaz/tint.zig.git#v0.0.1
-```
-
-### Method 3: Manual `build.zig.zon` Configuration
+### Method 2: Manual `build.zig.zon` Configuration
 
 Add the dependency to your `build.zig.zon` file.
+
+**Stable Release:**
 
 ```zig
 .dependencies = .{
@@ -132,7 +137,18 @@ Add the dependency to your `build.zig.zon` file.
 },
 ```
 
-### Method 4: Local Source Checkout
+**Development Branch:**
+
+```zig
+.dependencies = .{
+    .tint = .{
+        .url = "git+https://github.com/muhammad-fiaz/tint.zig.git",
+        .hash = "...", // Run `zig fetch --save <url>` to generate the hash.
+    },
+},
+```
+
+### Method 3: Local Source Checkout
 
 Clone the repository locally.
 
@@ -152,15 +168,16 @@ To use a local checkout from another project, add a path dependency to your `bui
 },
 ```
 
-### Wire into `build.zig`
+### Configure build.zig
 
-After adding the dependency, import the module in your `build.zig`:
+Then add it to your `build.zig`:
 
 ```zig
 const tint_dep = b.dependency("tint", .{
     .target = target,
     .optimize = optimize,
 });
+
 exe.root_module.addImport("tint", tint_dep.module("tint"));
 ```
 

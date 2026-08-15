@@ -1,6 +1,6 @@
 # Styles
 
-tint.zig provides composable text styles.
+`tint.zig` provides composable text styles for terminal output.
 
 ## Style Composition
 
@@ -78,6 +78,28 @@ const composed = tint.Style.compose(s1, s2);
 
 ## Preset Styles
 
+17 built-in presets:
+
+| Preset | Description |
+|--------|-------------|
+| `err_style` | Bold red for errors |
+| `warning` | Bold yellow for warnings |
+| `success` | Bold green for success |
+| `info` | Normal cyan for info |
+| `debug` | Dim gray for debug |
+| `link` | Underlined blue for links |
+| `code` | White on black for code |
+| `header` | Bold underlined for headers |
+| `muted` | Dim for muted text |
+| `highlight` | Bold black on yellow for highlights |
+| `strikethrough` | Strikethrough text |
+| `blink` | Blinking text |
+| `reverse` | Reversed colors |
+| `hidden` | Hidden text |
+| `overlined` | Overlined text |
+| `framed` | Framed text |
+| `encircled` | Encircled text |
+
 ```zig
 const err = tint.presets.err_style(.{ .ansi4 = .red });    // Bold red
 const warn = tint.presets.warning(.{ .ansi4 = .yellow });  // Bold yellow
@@ -98,10 +120,16 @@ tint.reset_bold           // SGR 22
 tint.reset_italic         // SGR 23
 tint.reset_underline      // SGR 24
 tint.reset_blink          // SGR 25
+tint.reset_rapid_blink    // SGR 26
 tint.reset_reverse        // SGR 27
 tint.reset_hidden         // SGR 28
 tint.reset_strikethrough  // SGR 29
 tint.reset_overline       // SGR 55
+tint.reset_fraktur        // SGR 26
+tint.reset_frame          // SGR 54
+tint.reset_encircle       // SGR 54
+tint.reset_super_script   // SGR 75
+tint.reset_sub_script     // SGR 75
 tint.reset_fg             // SGR 39
 tint.reset_bg             // SGR 49
 tint.reset_underline_color // SGR 59

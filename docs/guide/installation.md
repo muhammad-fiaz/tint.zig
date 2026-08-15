@@ -1,37 +1,71 @@
 # Installation
 
-## Method 1: zig fetch (Recommended)
+<img src="/tint.zig/android-chrome-512x512.png" alt="tint.zig" width="100" />
+
+## Prerequisites
+
+Before using `tint.zig`, ensure you have the following:
+
+| Requirement | Version | Notes |
+|-------------|---------|-------|
+| **Zig** | **0.16.0** (recommended) | Download from [ziglang.org](https://ziglang.org/download/) |
+| **Operating System** | Windows 10+, Linux, macOS, FreeBSD | Cross-platform support |
+
+---
+
+## Installation Methods
+
+### Method 1: Zig Fetch (Recommended)
+
+**Stable Release (v0.0.1):**
 
 ```bash
-zig fetch --save git+https://github.com/muhammad-fiaz/tint.zig
+zig fetch --save https://github.com/muhammad-fiaz/tint.zig/archive/refs/tags/v0.0.1.tar.gz
 ```
 
-## Method 2: zig fetch with git tag
+**Development Branch:**
 
 ```bash
-zig fetch --save git+https://github.com/muhammad-fiaz/tint.zig#v0.0.1
+zig fetch --save git+https://github.com/muhammad-fiaz/tint.zig.git
 ```
 
-## Method 3: Manual build.zig.zon
+### Method 2: Manual `build.zig.zon` Configuration
 
-Add tint.zig as a dependency in your `build.zig.zon`:
+Add the dependency to your `build.zig.zon` file.
+
+**Stable Release:**
 
 ```zig
 .dependencies = .{
     .tint = .{
         .url = "https://github.com/muhammad-fiaz/tint.zig/archive/refs/tags/v0.0.1.tar.gz",
-        .hash = "...",
+        .hash = "...", // Run `zig fetch --save <url>` to generate the hash.
     },
 },
 ```
 
-## Method 4: Local clone
+**Development Branch:**
+
+```zig
+.dependencies = .{
+    .tint = .{
+        .url = "git+https://github.com/muhammad-fiaz/tint.zig.git",
+        .hash = "...", // Run `zig fetch --save <url>` to generate the hash.
+    },
+},
+```
+
+### Method 3: Local Source Checkout
+
+Clone the repository locally.
 
 ```bash
 git clone https://github.com/muhammad-fiaz/tint.zig.git
+cd tint.zig
+zig build
 ```
 
-Then reference the local path in your `build.zig.zon`:
+To use a local checkout from another project, add a path dependency to your `build.zig.zon`:
 
 ```zig
 .dependencies = .{
@@ -41,30 +75,60 @@ Then reference the local path in your `build.zig.zon`:
 },
 ```
 
-## Wire it into your build.zig
+---
+
+## Configure build.zig
+
+Then add it to your `build.zig`:
 
 ```zig
-const std = @import("std");
+const tint_dep = b.dependency("tint", .{
+    .target = target,
+    .optimize = optimize,
+});
 
-pub fn build(b: *std.Build) void {
-    const target = b.standardTargetOptions(.{});
-    const optimize = b.standardOptimizeOption(.{});
-
-    const exe = b.addExecutable(.{
-        .name = "my_app",
-        .root_source_file = b.path("src/main.zig"),
-        .target = target,
-        .optimize = optimize,
-    });
-
-    const tint = b.dependency("tint", .{});
-    exe.root_module.addImport("tint", tint.module("tint"));
-
-    b.installArtifact(exe);
-}
+exe.root_module.addImport("tint", tint_dep.module("tint"));
 ```
 
-## Requirements
+---
 
-- Zig 0.16.0 or later
-- No external dependencies
+## Supported Platforms
+
+`tint.zig` is validated on these architectures:
+
+| Platform | x86_64 (64-bit) | aarch64 (ARM64) |
+|----------|-----------------|-----------------|
+| **Linux** | Yes | Yes |
+| **Windows** | Yes | Yes |
+| **macOS** | Yes | Yes (Apple Silicon) |
+| **FreeBSD** | Yes | Yes |
+
+### Cross-Compilation
+
+Zig makes cross-compilation easy. Build for any target from any host:
+
+```bash
+# Build for Linux ARM64 from Windows
+zig build -Dtarget=aarch64-linux
+
+# Build for Windows from Linux
+zig build -Dtarget=x86_64-windows
+
+# Build for macOS Apple Silicon from Linux
+zig build -Dtarget=aarch64-macos
+```
+
+---
+
+## Validation
+
+```bash
+# Run all tests
+zig build test
+
+# Format source files
+zig build fmt
+
+# Run all examples
+zig build run-all-examples
+```

@@ -1,6 +1,26 @@
 # Colors
 
-tint.zig supports multiple color formats through a unified `Color` type.
+`tint.zig` supports multiple color formats through a unified `Color` type.
+
+## Color Types
+
+| Color Type | Description |
+|------------|-------------|
+| **ANSI 4-Bit** | Standard terminal colors (16 colors) |
+| **Bright ANSI** | Bright variants (8 additional colors) |
+| **ANSI 256** | 256-color palette |
+| **ANSI 88** | 88-color palette |
+| **RGB / TrueColor** | Full 24-bit color |
+| **HEX** | Hexadecimal color codes |
+| **HSL** | Hue, Saturation, Lightness |
+| **HSV** | Hue, Saturation, Value |
+| **CMYK** | Cyan, Magenta, Yellow, Key (Black) |
+| **CIE XYZ** | CIE 1931 color space |
+| **CIE Lab** | CIE L*a*b* color space |
+| **Kelvin** | Color temperature (1000K to 40000K) |
+| **Named** | 140+ CSS/X11 named colors |
+
+---
 
 ## ANSI 4-Bit Colors
 
@@ -172,10 +192,11 @@ c.adjustHue(30)    // Adjust hue by 30 degrees
 ```zig
 const c = tint.rgb(255, 0, 0);
 const comp = c.complementary();       // Opposite color
-const [a1, a2] = c.analogous();      // Neighboring colors
-const [t1, t2] = c.triadic();        // Three evenly spaced
-const [s1, s2] = c.splitComplementary(); // Split complement
-const [q1, q2, q3] = c.tetradic();   // Four evenly spaced
+const analogous = c.analogous();      // Neighboring colors
+const triad = c.triadic();            // Three evenly spaced
+const split = c.splitComplementary(); // Split complement
+const tetrad = c.tetradic();          // Four evenly spaced
+const mono = c.monochromatic();       // 8 monochromatic variations
 ```
 
 ## Color Analysis

@@ -1,24 +1,76 @@
 # Getting Started
 
-tint.zig is a comprehensive, explicit color and text styling library for Zig.
+a guide to help you get started with `tint.zig`, a fast, minimal, zero dependency terminal color and text styling library for Zig 0.16.0+. This guide will walk you through installation, basic usage, and the design philosophy behind the library.
 
 ## Installation
 
-Add tint.zig as a dependency in your `build.zig.zon`:
+### Method 1: Zig Fetch (Recommended)
+
+**Stable Release (v0.0.1):**
+
+```bash
+zig fetch --save https://github.com/muhammad-fiaz/tint.zig/archive/refs/tags/v0.0.1.tar.gz
+```
+
+**Development Branch:**
+
+```bash
+zig fetch --save git+https://github.com/muhammad-fiaz/tint.zig.git
+```
+
+### Method 2: Manual `build.zig.zon` Configuration
+
+**Stable Release:**
 
 ```zig
 .dependencies = .{
     .tint = .{
         .url = "https://github.com/muhammad-fiaz/tint.zig/archive/refs/tags/v0.0.1.tar.gz",
-        .hash = "...",
+        .hash = "...", // Run `zig fetch --save <url>` to generate the hash.
     },
 },
 ```
 
-Then import it in your code:
+**Development Branch:**
 
 ```zig
-const tint = @import("tint");
+.dependencies = .{
+    .tint = .{
+        .url = "git+https://github.com/muhammad-fiaz/tint.zig.git",
+        .hash = "...", // Run `zig fetch --save <url>` to generate the hash.
+    },
+},
+```
+
+### Method 3: Local Source Checkout
+
+```bash
+git clone https://github.com/muhammad-fiaz/tint.zig.git
+cd tint.zig
+zig build
+```
+
+To use a local checkout from another project, add a path dependency to your `build.zig.zon`:
+
+```zig
+.dependencies = .{
+    .tint = .{
+        .path = "../tint.zig",
+    },
+},
+```
+
+### Configure build.zig
+
+Then add it to your `build.zig`:
+
+```zig
+const tint_dep = b.dependency("tint", .{
+    .target = target,
+    .optimize = optimize,
+});
+
+exe.root_module.addImport("tint", tint_dep.module("tint"));
 ```
 
 ## Quick Start
@@ -55,16 +107,19 @@ pub fn main() void {
 }
 ```
 
+> [!TIP]
+> Use `tint.style()` to create reusable, composable styles. Call `.with()` to extend a style without modifying the original.
+
 ## Design Philosophy
 
-tint.zig follows one fundamental rule:
+`tint.zig` follows one fundamental rule:
 
-> **Explicit input → explicit color/style representation → correct ANSI/SGR code → returned to the client.**
+> **Explicit input, explicit color/style representation, correct ANSI/SGR code, returned to the client.**
 
-The library:
-- Never prints to stdout/stderr
-- Never owns the writer
-- Never modifies terminal state
-- Never auto-detects capabilities
+The library never:
+- Prints to stdout/stderr
+- Owns the writer
+- Modifies terminal state
+- Auto-detects capabilities
 
-Your application owns all output. tint.zig only constructs the ANSI codes.
+Your application owns all output.
