@@ -1,7 +1,5 @@
 # Installation
 
-<img src="/tint.zig/android-chrome-512x512.png" alt="tint.zig" width="100" />
-
 ## Prerequisites
 
 Before using `tint.zig`, ensure you have the following:
