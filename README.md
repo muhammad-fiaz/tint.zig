@@ -113,7 +113,7 @@ zig build -Dtarget=aarch64-macos
 **Stable Release (v0.0.1):**
 
 ```bash
-zig fetch --save https://github.com/muhammad-fiaz/tint.zig/archive/refs/tags/v0.0.1.tar.gz
+zig fetch --save https://github.com/muhammad-fiaz/tint.zig/archive/refs/tags/0.0.1.tar.gz
 ```
 
 **Development Branch:**
@@ -131,7 +131,7 @@ Add the dependency to your `build.zig.zon` file.
 ```zig
 .dependencies = .{
     .tint = .{
-        .url = "https://github.com/muhammad-fiaz/tint.zig/archive/refs/tags/v0.0.1.tar.gz",
+        .url = "https://github.com/muhammad-fiaz/tint.zig/archive/refs/tags/0.0.1.tar.gz",
         .hash = "...", // Run `zig fetch --save <url>` to generate the hash.
     },
 },
