@@ -300,10 +300,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for full details.
 
 MIT License - see [LICENSE](LICENSE) for details.
 
----
 
-<div align="center">
-
-**[Documentation](https://muhammad-fiaz.github.io/tint.zig/) | [Examples](https://muhammad-fiaz.github.io/tint.zig/examples/) | [API Reference](https://muhammad-fiaz.github.io/tint.zig/api/) | [GitHub](https://github.com/muhammad-fiaz/tint.zig)**
-
-</div>
