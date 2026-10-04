@@ -1,19 +1,16 @@
 .{
     .name = .tint,
-
-    .version = "0.0.1",
-
+    .version = "0.0.2",
     .fingerprint = 0x2e09eb74f9f6e750,
-    .minimum_zig_version = "0.16.0",
-
+    .minimum_zig_version = "0.17.0",
     .dependencies = .{},
-
     .paths = .{
         "build.zig",
         "build.zig.zon",
         "src",
-        // For example...
-        //"LICENSE",
-        //"README.md",
+        "examples",
+        "LICENSE",
+        "README.md",
+        "CHANGELOG.md",
     },
 }

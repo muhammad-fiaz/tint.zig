@@ -12,28 +12,70 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  fmt:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
 
       - name: Setup Zig
         uses: mlugg/setup-zig@v2
         with:
-          version: 0.16.0
+          version: 0.17.0
 
-      - name: Run Zig tests
+      - name: Check formatting
+        run: zig fmt --check .
+
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Zig
+        uses: mlugg/setup-zig@v2
+        with:
+          version: 0.17.0
+
+      - name: Build library
+        run: zig build --summary all
+
+      - name: Run tests
         run: zig build test --summary all
 
-      - name: Build library (Debug)
-        run: zig build -Doptimize=Debug
+      - name: Run examples
+        run: zig build run-all-examples
 
-      - name: Build library (ReleaseFast)
-        run: zig build -Doptimize=ReleaseFast
+  cross:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - x86_64-linux
+          - aarch64-linux
+          - x86-linux
+          - x86_64-windows
+          - aarch64-windows
+          - x86-windows
+          - aarch64-macos
+          - x86_64-macos
+          - x86_64-freebsd
+          - aarch64-freebsd
 
-      - name: Zig format check
-        run: zig fmt --check src/ examples/
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Zig
+        uses: mlugg/setup-zig@v2
+        with:
+          version: 0.17.0
+
+      - name: Build tests for ${{ matrix.target }}
+        run: zig build test -Dtarget=${{ matrix.target }} --summary all

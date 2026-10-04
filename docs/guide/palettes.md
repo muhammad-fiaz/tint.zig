@@ -1,88 +1,70 @@
 # Palettes
 
-tint.zig provides access to standard color palettes and utilities for generating custom color sequences.
+Tables mirror xterm so previews match what terminals show. Generators write into caller buffers and never allocate.
 
-## ANSI 16 Palette
+## Tables
 
 ```zig
-const colors = tint.palette.ansi16;
-// 16 AnsiRgb values with names
-const names = tint.palette.ansi16_names;
-// "black", "red", "green", "yellow", "blue", "magenta", "cyan", "white",
-// "bright_black", "bright_red", "bright_green", "bright_yellow",
-// "bright_blue", "bright_magenta", "bright_cyan", "bright_white"
+tint.palette.ansi16;    // [16]Rgb
+tint.palette.ansi88;    // [88]Rgb, xterm layout
+tint.palette.ansi256;   // [256]Rgb
+tint.palette.ansi16Names;
+tint.palette.ansi88Names;
 ```
 
-## ANSI 256 Palette
+## Indexed Constructors
 
 ```zig
-const colors = tint.palette.ansi256;
-// 256 AnsiRgb values (comptime-generated)
+tint.color.ansi256.rgb(5, 0, 0);  // 6x6x6 cube
+tint.color.ansi256.gray(12);      // grayscale ramp
+tint.color.ansi256.index(196);    // arbitrary index
+tint.color.ansi88.rgb(3, 2, 1);   // 4x4x4 cube
+tint.color.ansi88.gray(7);
 ```
 
-## RGB Cube Helper
-
-Convert 6x6x6 coordinates to ANSI 256 index:
+## Generators
 
 ```zig
-const result = tint.palette.rgb6(5, 0, 0);
-// result.index = 196 (ANSI 256 index for red)
-tint.fg(tint.ansi256(result.index));
+var ramp: [24]tint.color.Rgb = undefined;
+tint.palette.ramp(&ramp, black, white);
+
+var multi: [48]tint.color.Rgb = undefined;
+tint.palette.gradient(&multi, &stops);
+
+var wheel: [72]tint.color.Rgb = undefined;
+tint.palette.hue(&wheel);
+
+var seq: [12]tint.color.Rgb = undefined;
+tint.palette.sequential(&seq, 210);       // one hue, light to dark
+tint.palette.diverging(&div, .{ 0, 220 });
+tint.palette.categorical(&cat);           // distinct hues
 ```
 
-## Grayscale Helper
+First and last elements are exactly the ends. Empty and single-element buffers are safe no-ops (a single slot holds the start color).
 
-Access grayscale ramp (indices 232-255):
+## Harmony Schemes
 
 ```zig
-const result = tint.palette.gray(12);
-// result.index = 244 (ANSI 256 index for gray)
-tint.fg(tint.ansi256(result.index));
+var out: [4]tint.color.Color = undefined;
+const used = tint.palette.tetradic(&out, base);  // returns what was written
 ```
 
-## Color Ramp
+Also `complementary`, `analogous`, `triadic`, `splitComplementary`.
 
-Linear interpolation between two colors:
+## Subsets
 
 ```zig
-const ramp = tint.palette.ramp(
-    .{ .r = 0, .g = 0, .b = 0 },     // Start (black)
-    .{ .r = 255, .g = 255, .b = 255 }, // End (white)
-    10,                                // Number of steps
-);
-// ramp[0] = black, ramp[5] = gray, ramp[10] = white
+tint.palette.warm; tint.palette.cool; tint.palette.earth;
+tint.palette.pastel; tint.palette.neon;
 ```
 
-## Gradient
-
-Three-color gradient:
+## Analysis
 
 ```zig
-const gradient = tint.palette.gradient(
-    .{ .r = 255, .g = 0, .b = 0 },   // Red
-    .{ .r = 0, .g = 255, .b = 0 },   // Green
-    .{ .r = 0, .g = 0, .b = 255 },   // Blue
-    10,                                // Number of steps
-);
-```
-
-## Color Wheel
-
-Full hue rainbow:
-
-```zig
-const wheel = tint.palette.colorWheel(12);
-// 12 evenly spaced hues around the color wheel
-```
-
-## Palette Subsets
-
-Pre-defined color groups:
-
-```zig
-const warm = tint.palette.warm_palette;    // 8 warm colors (reds, oranges, yellows)
-const cool = tint.palette.cool_palette;    // 8 cool colors (blues, cyans, teals)
-const earth = tint.palette.earth_palette;  // 8 earth tones (browns, tans)
-const pastel = tint.palette.pastel_palette; // 8 pastel colors
-const neon = tint.palette.neon_palette;    // 8 neon/bright colors
+tint.palette.readability(fg, bg);       // fail/large/aa/aaa
+tint.palette.minContrastRatio(&colors);
+tint.palette.maxContrastRatio(&colors);
+tint.palette.hasDuplicates(&colors);
+tint.palette.closestPair(&colors);      // smallest CIEDE2000 gap
+tint.palette.isMonotonicLuminance(&colors);
 ```

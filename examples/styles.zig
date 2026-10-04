@@ -2,30 +2,57 @@ const std = @import("std");
 const tint = @import("tint");
 
 pub fn main() void {
-    std.debug.print("=== Text Attributes ===\n", .{});
-    std.debug.print("{s}{s}Bold{s}\n", .{ tint.style(.{ .bold = true }).toAnsi(), "", tint.reset });
-    std.debug.print("{s}{s}Dim{s}\n", .{ tint.style(.{ .dim = true }).toAnsi(), "", tint.reset });
-    std.debug.print("{s}{s}Italic{s}\n", .{ tint.style(.{ .italic = true }).toAnsi(), "", tint.reset });
-    std.debug.print("{s}{s}Underline{s}\n", .{ tint.style(.{ .underline = true }).toAnsi(), "", tint.reset });
-    std.debug.print("{s}{s}Blink{s}\n", .{ tint.style(.{ .blink = true }).toAnsi(), "", tint.reset });
-    std.debug.print("{s}{s}Reverse{s}\n", .{ tint.style(.{ .reverse = true }).toAnsi(), "", tint.reset });
-    std.debug.print("{s}{s}Hidden{s}\n", .{ tint.style(.{ .hidden = true }).toAnsi(), "", tint.reset });
-    std.debug.print("{s}{s}Strikethrough{s}\n", .{ tint.style(.{ .strikethrough = true }).toAnsi(), "", tint.reset });
-    std.debug.print("{s}{s}Overline{s}\n", .{ tint.style(.{ .overline = true }).toAnsi(), "", tint.reset });
-    std.debug.print("{s}{s}Fraktur{s}\n", .{ tint.style(.{ .fraktur = true }).toAnsi(), "", tint.reset });
-    std.debug.print("{s}{s}Frame{s}\n", .{ tint.style(.{ .frame = true }).toAnsi(), "", tint.reset });
-    std.debug.print("{s}{s}Encircle{s}\n", .{ tint.style(.{ .encircle = true }).toAnsi(), "", tint.reset });
-    std.debug.print("{s}{s}Rapid Blink{s}\n", .{ tint.style(.{ .rapid_blink = true }).toAnsi(), "", tint.reset });
-    std.debug.print("{s}{s}Super Script{s}\n", .{ tint.style(.{ .super_script = true }).toAnsi(), "", tint.reset });
-    std.debug.print("{s}{s}Sub Script{s}\n", .{ tint.style(.{ .sub_script = true }).toAnsi(), "", tint.reset });
+    const reset = tint.ansi.reset.all;
 
-    // Combined with colors
-    std.debug.print("\n=== Combined with Colors ===\n", .{});
-    std.debug.print("{s}{s}{s}Bold Red{s}\n", .{ tint.style(.{ .bold = true }).toAnsi(), tint.fg(.{ .ansi4 = .red }), "", tint.reset });
-    std.debug.print("{s}{s}{s}Italic Green{s}\n", .{ tint.style(.{ .italic = true }).toAnsi(), tint.fg(.{ .ansi4 = .green }), "", tint.reset });
-    std.debug.print("{s}{s}{s}Underline Blue{s}\n", .{ tint.style(.{ .underline = true }).toAnsi(), tint.fg(.{ .ansi4 = .blue }), "", tint.reset });
+    std.debug.print("=== Attributes ===\n", .{});
+    const attrs = .{
+        .{ "bold", tint.style.bold },
+        .{ "dim", tint.style.dim },
+        .{ "italic", tint.style.italic },
+        .{ "underline", tint.style.underline },
+        .{ "blink", tint.style.blink },
+        .{ "reverse", tint.style.reverse },
+        .{ "hidden", tint.style.hidden },
+        .{ "strikethrough", tint.style.strikethrough },
+        .{ "overline", tint.style.overline },
+        .{ "fraktur", tint.style.fraktur },
+        .{ "frame", tint.style.frame },
+        .{ "encircle", tint.style.encircle },
+    };
+    inline for (attrs) |entry| {
+        std.debug.print("  {s}{s:<14}{s}\n", .{ entry[1].toAnsi().slice(), entry[0], reset });
+    }
 
-    // Individual resets
-    std.debug.print("\n=== Individual Resets ===\n", .{});
-    std.debug.print("{s}{s}Bold{s} Normal{s}\n", .{ tint.style(.{ .bold = true }).toAnsi(), "", tint.reset_bold, tint.reset });
+    std.debug.print("\n=== Fluent composition ===\n", .{});
+    const heading = tint.style.bold.fg(tint.color.cyan);
+    const warning = tint.style.bold.fg(tint.color.yellow).merge(.{ .underline = true });
+    const code = tint.style.fg(tint.color.white).bg(tint.color.black);
+    std.debug.print("{s}heading{s}\n", .{ heading.toAnsi().slice(), reset });
+    std.debug.print("{s}warning{s}\n", .{ warning.toAnsi().slice(), reset });
+    std.debug.print("{s} code {s}\n", .{ code.toAnsi().slice(), reset });
+
+    std.debug.print("\n=== Presets ===\n", .{});
+    const presets = .{
+        .{ "error", tint.style.err(tint.color.red) },
+        .{ "warning", tint.style.warning(tint.color.yellow) },
+        .{ "success", tint.style.success(tint.color.green) },
+        .{ "info", tint.style.info(tint.color.cyan) },
+        .{ "debug", tint.style.debug(tint.color.ansi4.brightBlack) },
+        .{ "link", tint.style.link(tint.color.blue) },
+        .{ "muted", tint.style.muted(tint.color.ansi4.brightBlack) },
+    };
+    inline for (presets) |entry| {
+        std.debug.print("{s}{s:<8}{s} sample text\n", .{ entry[1].toAnsi().slice(), entry[0], reset });
+    }
+
+    std.debug.print("\n=== Merge, override, without ===\n", .{});
+    const base = tint.style.bold.fg(tint.color.red);
+    std.debug.print("{s}merged{s}\n", .{ base.merge(.{ .italic = true }).toAnsi().slice(), reset });
+    std.debug.print("{s}cleared{s}\n", .{ base.without(tint.style.bold).toAnsi().slice(), reset });
+    std.debug.print("minimal reset for bold red: {s}\n", .{base.reset().slice()});
+
+    std.debug.print("\n=== Caller-owned rendering ===\n", .{});
+    var buffer: [64]u8 = undefined;
+    const rendered = heading.render(&buffer, "hello") catch "too small";
+    std.debug.print("{s}\n", .{rendered});
 }

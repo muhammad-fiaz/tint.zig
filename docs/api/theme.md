@@ -1,8 +1,6 @@
 # Theme API
 
-## Types
-
-### Theme
+## Theme
 
 ```zig
 pub const Theme = struct {
@@ -11,7 +9,7 @@ pub const Theme = struct {
     secondary: Color,
     success: Color,
     warning: Color,
-    err: Color,        // Note: "err" not "error" (reserved keyword in Zig)
+    err: Color,   // `error` is a Zig primitive, so the role is `err`
     info: Color,
     text: Color,
     muted: Color,
@@ -20,112 +18,35 @@ pub const Theme = struct {
 };
 ```
 
-## Functions
-
-### Theme.init
+## Construction
 
 ```zig
-pub fn init(
-    name: []const u8,
-    primary: Color,
-    secondary: Color,
-    success: Color,
-    warning: Color,
-    err: Color,
-    info: Color,
-    text: Color,
-    muted: Color,
-) Theme
+tint.theme.Theme.create("custom", .{
+    .primary = ..., .secondary = ..., .success = ..., .warning = ...,
+    .err = ..., .info = ..., .text = ..., .muted = ...,
+    .background = ...,  // optional, falls back to text
+    .surface = ...,     // optional, falls back to muted
+});
 ```
-
-Creates a new Theme with the given colors. `background` defaults to `text`, `surface` defaults to `muted`.
-
-### Theme.initWithBackground
-
-```zig
-pub fn initWithBackground(
-    name: []const u8,
-    primary: Color,
-    secondary: Color,
-    success: Color,
-    warning: Color,
-    err: Color,
-    info: Color,
-    text: Color,
-    muted: Color,
-    background: Color,
-    surface: Color,
-) Theme
-```
-
-Creates a new Theme with explicit `background` and `surface` colors.
 
 ## Built-in Themes
 
-### dark_theme
+```zig
+tint.theme.dark; tint.theme.light; tint.theme.dracula; tint.theme.nord;
+tint.theme.monokai; tint.theme.tokyoNight; tint.theme.gruvbox;
+tint.theme.solarized; tint.theme.rosePine; tint.theme.catppuccin;
+tint.theme.github; tint.theme.oneDark; tint.theme.material;
+tint.theme.palenight; tint.theme.everforest; tint.theme.kanagawa;
+tint.theme.cyberdream; tint.theme.all;
+```
 
-Default dark theme with indigo primary, green success, red error.
+## Roles and Validation
 
-### light_theme
-
-Default light theme.
-
-### dracula_theme
-
-Dracula color scheme.
-
-### nord_theme
-
-Nord color scheme.
-
-### monokai_theme
-
-Monokai color scheme.
-
-### tokyo_night_theme
-
-Tokyo Night color scheme.
-
-### gruvbox_theme
-
-Gruvbox color scheme.
-
-### solarized_theme
-
-Solarized color scheme.
-
-### rose_pine_theme
-
-Rose Pine color scheme.
-
-### catppuccin_theme
-
-Catppuccin color scheme.
-
-### github_theme
-
-GitHub color scheme.
-
-### one_dark_theme
-
-One Dark color scheme.
-
-### material_theme
-
-Material color scheme.
-
-### palenight_theme
-
-Palenight color scheme.
-
-### everforest_theme
-
-Everforest color scheme.
-
-### kanagawa_theme
-
-Kanagawa color scheme.
-
-### cyberdream_theme
-
-Cyberdream color scheme.
+```zig
+tint.theme.Role;   // primary/secondary/success/warning/err/info/text/muted/background/surface
+theme.role(.primary);
+theme.styled(.err);
+theme.contrast(.text, .background);
+theme.readability(.muted, .background);
+theme.meets(.aa);
+```

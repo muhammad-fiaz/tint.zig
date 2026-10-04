@@ -6,7 +6,7 @@ titleTemplate: Color and Styling Library for Zig
 hero:
   name: tint.zig
   text: Color and Styling Library for Zig
-  tagline: "A fast, minimal, zero dependency terminal color and text styling library for Zig 0.16.0+. Supports ANSI, bright ANSI, 256-color, RGB, HEX, HSL, HSV, CMYK, LAB, XYZ, palettes, themes, and composable styles."
+  tagline: "A fast, minimal, zero-dependency terminal color and text styling library for Zig 0.17.0. Colors as values, composable styles, palettes, themes, and allocation-free ANSI sequences."
   image:
     src: /android-chrome-512x512.png
     alt: tint.zig
@@ -22,28 +22,28 @@ hero:
       link: https://github.com/muhammad-fiaz/tint.zig
 
 features:
-  - icon: 
-    title: Complete Color Support
-    details: "ANSI 4-bit, bright ANSI, 256-color, RGB/TrueColor, HEX, HSL, HSV, CMYK, CIE XYZ, CIE Lab, and 140+ CSS/X11 named colors."
-  - icon: 
+  - icon:
+    title: Colors as Values
+    details: "ANSI 4-bit, ANSI 88, ANSI 256, RGB, HEX, HSL, HSV, CMYK, XYZ, Lab, LCh, OKLab, OKLCH, Kelvin, and 148 named colors. Any space converts to any other."
+  - icon:
     title: Explicit Styling
-    details: "Bold, italic, underline, strikethrough, overline, fraktur, frame, encircle, rapid blink, super/subscript. Individual reset codes for fine-grained control."
-  - icon: 
+    details: "Bold, dim, italic, underline, blink, reverse, hidden, strikethrough, overline, fraktur, frame, encircle, super/subscript. Merge, override, and subtract styles."
+  - icon:
     title: Composable Themes
-    details: "17 built-in themes (dark, light, dracula, nord, monokai, tokyo_night, gruvbox, solarized, rose_pine, catppuccin, github, one_dark, material, palenight, everforest, kanagawa, cyberdream). Create custom themes with Theme.init()."
-  - icon: 
-    title: Color Conversion
-    details: "Convert between RGB, HEX, ANSI 256, HSL, HSV, CMYK, CIE XYZ, and CIE Lab. Color distance, contrast ratio, and nearest ANSI 256 approximation."
-  - icon: 
-    title: Color Manipulation
-    details: "Lighten, darken, saturate, desaturate, invert, grayscale, mix, rotate, adjust hue. Color harmony: complementary, analogous, triadic, split-complementary, tetradic, monochromatic."
-  - icon: 
-    title: Color Palettes
-    details: "ANSI 16, ANSI 88, ANSI 256, RGB6 cube, grayscale ramp, color ramps, color wheel, warm/cool/earth/pastel/neon palette subsets."
-  - icon: 
+    details: "17 built-in themes with semantic roles and contrast validation. Select explicitly; no global state."
+  - icon:
+    title: Color Science
+    details: "WCAG contrast, CIE76/94/2000 and OKLab distance, perceptual interpolation with explicit hue paths, OKLab quantization."
+  - icon:
+    title: Palettes
+    details: "xterm-faithful tables, caller-owned ramps, gradients, sequential, diverging and categorical schemes, harmony buffers, readability checks."
+  - icon:
+    title: Capabilities
+    details: "Render for none, ansi16, ansi256 or trueColor. Deterministic downgrade; nothing is ever auto-detected."
+  - icon:
     title: Zero Dependencies
-    details: "Pure Zig with no external dependencies. Minimal overhead, compile-time constants, efficient runtime construction. Cross-platform: Windows, Linux, macOS, FreeBSD."
-  - icon: 
+    details: "Pure Zig. Value-returned sequences, caller-owned buffers, no thread-local state, no allocation."
+  - icon:
     title: Client-Owned Output
-    details: "The library constructs ANSI codes and returns them. Your application owns all output and I/O. Never prints to stdout/stderr."
+    details: "The library builds escape sequences and hands them back. Your application owns all output and I/O."
 ---

@@ -1,259 +1,66 @@
 # Style API
 
-## Types
-
-### Style
+## Style
 
 ```zig
 pub const Style = struct {
-    fg: ?Color = null,
-    bg: ?Color = null,
-    underline_color: ?Color = null,
+    foreground: ?Color = null,
+    background: ?Color = null,
+    underlineColor: ?Color = null,
     bold: bool = false,
     dim: bool = false,
     italic: bool = false,
     underline: bool = false,
     blink: bool = false,
-    rapid_blink: bool = false,
+    rapidBlink: bool = false,
     reverse: bool = false,
     hidden: bool = false,
     strikethrough: bool = false,
-    super_script: bool = false,
-    sub_script: bool = false,
-    fraktur: bool = false,
     overline: bool = false,
+    fraktur: bool = false,
     frame: bool = false,
     encircle: bool = false,
+    superScript: bool = false,
+    subScript: bool = false,
 };
 ```
 
-### StyleOptions
+## Constants and Constructors
 
 ```zig
-pub const StyleOptions = struct {
-    fg: ?Color = null,
-    bg: ?Color = null,
-    underline_color: ?Color = null,
-    bold: bool = false,
-    dim: bool = false,
-    italic: bool = false,
-    underline: bool = false,
-    blink: bool = false,
-    rapid_blink: bool = false,
-    reverse: bool = false,
-    hidden: bool = false,
-    strikethrough: bool = false,
-    super_script: bool = false,
-    sub_script: bool = false,
-    fraktur: bool = false,
-    overline: bool = false,
-    frame: bool = false,
-    encircle: bool = false,
-};
+tint.style.bold; tint.style.dim; tint.style.italic; ...
+tint.style.fg(color); tint.style.bg(color); tint.style.underlineColor(color);
+tint.style.Style{ .bold = true, .foreground = tint.color.red };
 ```
 
-## Functions
-
-### tint.style
+## Composition
 
 ```zig
-pub fn style(opts: StyleOptions) Style
+style.merge(other)        // union: set colors replace, flags combine
+style.override(other)     // replace: colors (even null) and flags win
+style.without(attrs)      // subtract: listed fields are removed
+style.fg(color)           // fluent: bold.fg(red)
+style.bg(color)
+style.withUnderlineColor(color)
+style.withoutForeground()
+style.withoutBackground()
+style.withoutUnderlineColor()
+style.isEmpty()
+Style.eql(a, b)
 ```
 
-Creates a composable style with the given options.
-
-## Methods
-
-### Style.init
+## Rendering
 
 ```zig
-pub fn init(opts: StyleOptions) Style
+style.toAnsi()            // ansi.Sequence value
+style.reset()             // minimal undo sequence, empty when unset
+style.render(&buffer, text) // styled text + trailing reset, caller buffer
 ```
-
-Creates a new Style with the given options.
-
-### Style.with
-
-```zig
-pub fn with(self: Style, opts: StyleOptions) Style
-```
-
-Creates a new Style based on this one with the given overrides. Boolean fields are OR'd together.
-
-### Style.withFg
-
-```zig
-pub fn withFg(self: Style, c: Color) Style
-```
-
-Creates a new Style with the given foreground color.
-
-### Style.withBg
-
-```zig
-pub fn withBg(self: Style, c: Color) Style
-```
-
-Creates a new Style with the given background color.
-
-### Style.withUnderline
-
-```zig
-pub fn withUnderline(self: Style, c: Color) Style
-```
-
-Creates a new Style with the given underline color.
-
-### Style.compose
-
-```zig
-pub fn compose(a: Style, b: Style) Style
-```
-
-Merges two styles. Style b overrides colors from style a. Boolean fields are OR'd.
-
-### Style.toAnsi
-
-```zig
-pub fn toAnsi(self: Style) []const u8
-```
-
-Generates the complete ANSI escape sequence for this style.
 
 ## Presets
 
-### tint.presets.err_style
-
 ```zig
-pub fn err_style(fg: Color) Style
+tint.style.err/warning/success/info/debug/link/code/header/muted/highlight
 ```
 
-Bold text with given foreground color.
-
-### tint.presets.warning
-
-```zig
-pub fn warning(fg: Color) Style
-```
-
-Bold text with given foreground color.
-
-### tint.presets.success
-
-```zig
-pub fn success(fg: Color) Style
-```
-
-Bold text with given foreground color.
-
-### tint.presets.info
-
-```zig
-pub fn info(fg: Color) Style
-```
-
-Normal text with given foreground color.
-
-### tint.presets.debug
-
-```zig
-pub fn debug(fg: Color) Style
-```
-
-Dim text with given foreground color.
-
-### tint.presets.link
-
-```zig
-pub fn link(fg: Color) Style
-```
-
-Underlined text with given foreground color.
-
-### tint.presets.code
-
-```zig
-pub fn code(fg: Color, bg: Color) Style
-```
-
-Text with given foreground and background colors.
-
-### tint.presets.header
-
-```zig
-pub fn header(fg: Color) Style
-```
-
-Bold underlined text with given foreground color.
-
-### tint.presets.muted
-
-```zig
-pub fn muted(fg: Color) Style
-```
-
-Dim text with given foreground color.
-
-### tint.presets.highlight
-
-```zig
-pub fn highlight(fg: Color, bg: Color) Style
-```
-
-Bold text with given foreground and background colors.
-
-### tint.presets.strikethrough_text
-
-```zig
-pub fn strikethrough_text(fg: Color) Style
-```
-
-Strikethrough text with given foreground color.
-
-### tint.presets.blink_text
-
-```zig
-pub fn blink_text(fg: Color) Style
-```
-
-Blinking text with given foreground color.
-
-### tint.presets.reverse_text
-
-```zig
-pub fn reverse_text(fg: Color) Style
-```
-
-Reverse video text with given foreground color.
-
-### tint.presets.hidden_text
-
-```zig
-pub fn hidden_text(fg: Color) Style
-```
-
-Hidden text with given foreground color.
-
-### tint.presets.overlined
-
-```zig
-pub fn overlined(fg: Color) Style
-```
-
-Overlined text with given foreground color.
-
-### tint.presets.framed
-
-```zig
-pub fn framed(fg: Color) Style
-```
-
-Framed text with given foreground color.
-
-### tint.presets.encircled
-
-```zig
-pub fn encircled(fg: Color) Style
-```
-
-Encircled text with given foreground color.
+Only semantic combinations are functions; bare attributes are constants.
