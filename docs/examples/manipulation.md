@@ -1,3 +1,9 @@
+---
+title: Manipulation Example
+description: "Lighten, darken, saturate, fade and invert colors; interpolate in every space and walk explicit hue paths."
+keywords: "color manipulation example, color interpolation, hue rotation, color harmony"
+---
+
 # Manipulation Example
 
 Adjustments, interpolation spaces, hue paths, harmony. Run with `zig build run-manipulation`.

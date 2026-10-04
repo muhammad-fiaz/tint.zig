@@ -1,3 +1,9 @@
+---
+title: Palettes Example
+description: "Generate ramps, gradients and categorical schemes into caller buffers and validate palette readability."
+keywords: "palette example, color ramp, multi-stop gradient, palette validation"
+---
+
 # Palettes Example
 
 Tables, ramps, schemes, checks. Run with `zig build run-palettes`.

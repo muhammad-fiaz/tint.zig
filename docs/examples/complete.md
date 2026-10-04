@@ -1,3 +1,9 @@
+---
+title: Complete Tour
+description: "Tour the whole tint.zig API in one program: colors, layers, styles, presets, analysis, palettes and themes."
+keywords: "tint.zig tour, complete example, terminal color showcase"
+---
+
 # Complete Tour
 
 The whole library in one program. Run with `zig build run-complete`.

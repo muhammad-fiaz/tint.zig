@@ -1,3 +1,9 @@
+---
+title: Colorspaces Example
+description: "Convert between RGB, HEX, HSL, HSV, CMYK, XYZ, Lab and OKLab, and parse hex strings and color names."
+keywords: "color spaces example, color conversion, hex parsing, xyz lab oklab"
+---
+
 # Colorspaces Example
 
 Any space to any space, plus parsing. Run with `zig build run-colorspaces`.

@@ -1,3 +1,9 @@
+---
+title: Installation
+description: "Install tint.zig 0.0.2 with zig fetch, manual build.zig.zon config, or a local checkout. Requires Zig 0.17.0."
+keywords: "install tint.zig, zig fetch dependency, build.zig.zon, zig 0.17.0 setup"
+---
+
 # Installation
 
 ## Prerequisites

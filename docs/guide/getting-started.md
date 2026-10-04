@@ -1,3 +1,9 @@
+---
+title: Getting Started
+description: "Get started with tint.zig: install the library, print your first colors, and learn how colors, styles and capabilities fit together."
+keywords: "tint.zig getting started, zig terminal colors tutorial, zig styling quickstart"
+---
+
 # Getting Started
 
 `tint.zig` 0.0.2 is a terminal color and text styling library for Zig 0.17.0. It builds ANSI/SGR escape sequences and returns them as values. Your application owns all output.

@@ -18,6 +18,14 @@ export const ADSENSE_CLIENT_ID = "ca-pub-2040560600290490";
 export const KEYWORDS =
   "zig, terminal, color, ansi, style, rgb, hex, truecolor, 256-color, palette, theme, styling, escape, sgr, text, formatting, cli, cmyk, lab, xyz, hsl, hsv, color-manipulation";
 
+// Per-section keyword fallback when a page declares no keywords of its own.
+function sectionKeywords(relativePath: string): string | null {
+  if (relativePath.startsWith("guide/")) return "tint.zig guide, zig terminal tutorial, " + KEYWORDS;
+  if (relativePath.startsWith("api/")) return "tint.zig api reference, " + KEYWORDS;
+  if (relativePath.startsWith("examples/")) return "tint.zig examples, " + KEYWORDS;
+  return KEYWORDS;
+}
+
 export default defineConfig({
   lang: "en-US",
   title: SITE_NAME,
@@ -222,6 +230,14 @@ gtag('config', '${GA_ID}');`,
         },
       ],
       ["meta", { property: "og:url", content: canonicalUrl }],
+      ["meta", { property: "og:image", content: `${SITE_URL}/android-chrome-512x512.png` }],
+      ["meta", { property: "og:image:width", content: "512" }],
+      ["meta", { property: "og:image:height", content: "512" }],
+      ["meta", { property: "og:image:alt", content: `${pageTitle} | ${SITE_NAME}` }],
+      ["meta", { name: "twitter:card", content: "summary_large_image" }],
+      ["meta", { name: "twitter:title", content: `${pageTitle} | ${SITE_NAME}` }],
+      ["meta", { name: "twitter:image", content: `${SITE_URL}/android-chrome-512x512.png` }],
+      ["meta", { name: "twitter:image:alt", content: `${pageTitle} | ${SITE_NAME}` }],
     );
 
     if (pageData.frontmatter.description) {
@@ -238,6 +254,15 @@ gtag('config', '${GA_ID}');`,
           { name: "description", content: pageData.frontmatter.description },
         ],
       );
+    }
+
+    const pageKeywords =
+      pageData.frontmatter.keywords || sectionKeywords(pageData.relativePath);
+    if (pageKeywords) {
+      pageData.frontmatter.head.push([
+        "meta",
+        { name: "keywords", content: pageKeywords },
+      ]);
     }
 
     const isHome = pageData.relativePath === "index.md";

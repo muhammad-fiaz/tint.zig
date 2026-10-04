@@ -1,3 +1,9 @@
+---
+title: Styles Example
+description: "Compose text attributes and presets, merge and subtract styles, and render caller-owned styled text."
+keywords: "text style example, style presets, style merge override, ansi attributes"
+---
+
 # Styles Example
 
 Attributes, presets, composition, rendering. Run with `zig build run-styles`.

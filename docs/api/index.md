@@ -1,3 +1,9 @@
+---
+title: API Reference
+description: "Complete tint.zig 0.0.2 API reference: color, style, palette, theme and ansi namespaces with constructors and methods."
+keywords: "tint.zig api, zig color library reference, terminal styling api"
+---
+
 # API Reference
 
 ```text

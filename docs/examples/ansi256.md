@@ -1,3 +1,9 @@
+---
+title: ANSI 256 Example
+description: "Print the 256 and 88 color palettes, indexed constructors, and the capability downgrade ladder."
+keywords: "ansi 256 example, 88 color palette, indexed color, terminal capability"
+---
+
 # ANSI 256 Example
 
 Indexed colors, both palettes, and explicit capabilities. Run with `zig build run-ansi256`.

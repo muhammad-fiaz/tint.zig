@@ -1,3 +1,9 @@
+---
+title: Examples
+description: "Twelve focused tint.zig examples: colors, styles, palettes, gradients, themes and terminal capabilities."
+keywords: "tint.zig examples, zig color examples, terminal styling demos"
+---
+
 # Examples
 
 12 focused examples. Run any of them:

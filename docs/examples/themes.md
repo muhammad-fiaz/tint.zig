@@ -1,3 +1,9 @@
+---
+title: Themes Example
+description: "Browse all 17 built-in themes, create custom themes, style by semantic role and grade readability."
+keywords: "theme example, custom theme, semantic roles, theme readability"
+---
+
 # Themes Example
 
 Built-in themes, custom themes, roles, validation. Run with `zig build run-themes`.

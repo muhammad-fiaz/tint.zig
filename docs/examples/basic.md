@@ -1,3 +1,9 @@
+---
+title: Basic Example
+description: "Print foreground, background and underline colors with tint.zig using named color values."
+keywords: "zig basic colors example, foreground background colors"
+---
+
 # Basic Example
 
 Colors as values. Run with `zig build run-basic`.

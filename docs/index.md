@@ -1,8 +1,9 @@
 ---
 layout: home
-title: tint.zig
-titleTemplate: Color and Styling Library for Zig
-
+title: Terminal Colors, Styles & Themes for Zig
+titleTemplate: :title | tint.zig
+description: "tint.zig is a fast, minimal, zero-dependency terminal color and text styling library for Zig 0.17.0. Colors as values, composable styles, palettes, themes, allocation-free ANSI."
+keywords: "tint.zig, zig terminal colors, text styling, ansi, palettes, themes, rgb, truecolor"
 hero:
   name: tint.zig
   text: Color and Styling Library for Zig
