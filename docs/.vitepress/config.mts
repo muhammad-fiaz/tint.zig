@@ -1,4 +1,4 @@
-import { defineConfig } from "vitepress";
+﻿import { defineConfig } from "vitepress";
 import llmstxt from "vitepress-plugin-llms";
 
 // Site configuration
@@ -17,6 +17,14 @@ export const ADSENSE_CLIENT_ID = "ca-pub-2040560600290490";
 // SEO Keywords
 export const KEYWORDS =
   "zig, terminal, color, ansi, style, rgb, hex, truecolor, 256-color, palette, theme, styling, escape, sgr, text, formatting, cli, cmyk, lab, xyz, hsl, hsv, color-manipulation";
+
+// Per-section keyword fallback when a page declares no keywords of its own.
+function sectionKeywords(relativePath: string): string | null {
+  if (relativePath.startsWith("guide/")) return "tint.zig guide, zig terminal tutorial, " + KEYWORDS;
+  if (relativePath.startsWith("api/")) return "tint.zig api reference, " + KEYWORDS;
+  if (relativePath.startsWith("examples/")) return "tint.zig examples, " + KEYWORDS;
+  return KEYWORDS;
+}
 
 export default defineConfig({
   lang: "en-US",
@@ -222,6 +230,14 @@ gtag('config', '${GA_ID}');`,
         },
       ],
       ["meta", { property: "og:url", content: canonicalUrl }],
+      ["meta", { property: "og:image", content: `${SITE_URL}/android-chrome-512x512.png` }],
+      ["meta", { property: "og:image:width", content: "512" }],
+      ["meta", { property: "og:image:height", content: "512" }],
+      ["meta", { property: "og:image:alt", content: `${pageTitle} | ${SITE_NAME}` }],
+      ["meta", { name: "twitter:card", content: "summary_large_image" }],
+      ["meta", { name: "twitter:title", content: `${pageTitle} | ${SITE_NAME}` }],
+      ["meta", { name: "twitter:image", content: `${SITE_URL}/android-chrome-512x512.png` }],
+      ["meta", { name: "twitter:image:alt", content: `${pageTitle} | ${SITE_NAME}` }],
     );
 
     if (pageData.frontmatter.description) {
@@ -238,6 +254,15 @@ gtag('config', '${GA_ID}');`,
           { name: "description", content: pageData.frontmatter.description },
         ],
       );
+    }
+
+    const pageKeywords =
+      pageData.frontmatter.keywords || sectionKeywords(pageData.relativePath);
+    if (pageKeywords) {
+      pageData.frontmatter.head.push([
+        "meta",
+        { name: "keywords", content: pageKeywords },
+      ]);
     }
 
     const isHome = pageData.relativePath === "index.md";
@@ -312,10 +337,10 @@ gtag('config', '${GA_ID}');`,
           "CIE XYZ and CIE Lab color spaces",
           "140+ CSS/X11 named colors",
           "Composable styles",
-          "16 built-in themes",
+          "17 built-in themes",
           "Color manipulation (lighten, darken, saturate, desaturate, invert, grayscale, mix)",
           "Color harmony (complementary, analogous, triadic, split-complementary, tetradic)",
-          "Color distance and contrast ratio",
+          "Color distance (CIE76, CIE94, CIEDE2000) and contrast ratio",
           "Color temperature (Kelvin to RGB)",
            "Multi-stop palette gradients and rainbow hue gradients",
           "Zero dependencies",
@@ -433,6 +458,7 @@ gtag('config', '${GA_ID}');`,
           { text: "Style", link: "/api/style" },
           { text: "Palette", link: "/api/palette" },
           { text: "Theme", link: "/api/theme" },
+          { text: "ANSI", link: "/api/ansi" },
         ],
       },
       {
@@ -440,27 +466,17 @@ gtag('config', '${GA_ID}');`,
         items: [
           { text: "Overview", link: "/examples/" },
           { text: "Basic", link: "/examples/basic" },
-          { text: "ANSI 16", link: "/examples/ansi16" },
-          { text: "Bright Colors", link: "/examples/bright" },
+          { text: "ANSI", link: "/examples/ansi" },
           { text: "ANSI 256", link: "/examples/ansi256" },
-          { text: "RGB / TrueColor", link: "/examples/rgb" },
-          { text: "HEX Colors", link: "/examples/hex" },
-          { text: "HSL Colors", link: "/examples/hsl" },
-          { text: "HSV Colors", link: "/examples/hsv" },
-          { text: "CMYK", link: "/examples/cmyk" },
-          { text: "Color Temperature", link: "/examples/color-temperature" },
-          { text: "Color Manipulation", link: "/examples/color-manipulation" },
-          { text: "Color Harmony", link: "/examples/color-harmony" },
-          { text: "Color Analysis", link: "/examples/color-analysis" },
+          { text: "Colorspaces", link: "/examples/colorspaces" },
+          { text: "Manipulation", link: "/examples/manipulation" },
+          { text: "Analysis", link: "/examples/analysis" },
           { text: "Styles", link: "/examples/styles" },
-          { text: "Presets", link: "/examples/presets" },
-          { text: "Underline Color", link: "/examples/underline-color" },
           { text: "Palettes", link: "/examples/palettes" },
-          { text: "Themes", link: "/examples/themes" },
-          { text: "Themes Extended", link: "/examples/themes-extended" },
           { text: "Gradient", link: "/examples/gradient" },
-          { text: "Composition", link: "/examples/composition" },
-          { text: "Complete Demo", link: "/examples/complete" },
+          { text: "Themes", link: "/examples/themes" },
+          { text: "Capability", link: "/examples/capability" },
+          { text: "Complete Tour", link: "/examples/complete" },
         ],
       },
     ],
@@ -471,7 +487,7 @@ gtag('config', '${GA_ID}');`,
 
     footer: {
       message: "Released under the MIT License.",
-      copyright: "Copyright © 2026 Muhammad Fiaz",
+      copyright: "Copyright Â© 2026 Muhammad Fiaz",
     },
 
     search: {
@@ -493,3 +509,4 @@ gtag('config', '${GA_ID}');`,
     },
   },
 });
+

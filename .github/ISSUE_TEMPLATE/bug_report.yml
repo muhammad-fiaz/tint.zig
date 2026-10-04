@@ -40,7 +40,7 @@ body:
     attributes:
       label: tint.zig Version
       description: What version of tint.zig are you using?
-      placeholder: 0.0.1
+      placeholder: 0.0.2
     validations:
       required: true
   - type: input
@@ -48,7 +48,7 @@ body:
     attributes:
       label: Zig Version
       description: What version of Zig are you using?
-      placeholder: 0.16.0
+      placeholder: 0.17.0
     validations:
       required: true
   - type: dropdown

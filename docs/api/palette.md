@@ -1,183 +1,67 @@
+---
+title: Palette API
+description: "Palette API reference: ANSI tables, ramp and gradient generators, harmony schemes, subsets and readability analysis."
+keywords: "zig palette api, ansi tables, color gradient api, palette analysis"
+---
+
 # Palette API
 
-## Constants
+## Tables
 
-### ansi16
-
-```zig
-pub const ansi16 = [16]AnsiRgb{ ... };
-```
-
-Standard ANSI 16-color palette as RGB values.
-
-### ansi16_names
+xterm-faithful RGB arrays plus their names. The 88-color table uses xterm's real layout: 16 base colors, a 4x4x4 cube on the levels `0/139/205/255`, and the 8-step grayscale ramp:
 
 ```zig
-pub const ansi16_names = [16][]const u8{ ... };
+tint.palette.ansi16;      // [16]Rgb
+tint.palette.ansi88;      // [88]Rgb
+tint.palette.ansi256;     // [256]Rgb
+tint.palette.ansi16Names; // [16][]const u8
+tint.palette.ansi88Names; // [88][]const u8
 ```
 
-Names for the ANSI 16-color palette.
+## Generators
 
-### ansi88
+Every generator writes into a caller buffer and never allocates. Ends are exact, empty buffers are no-ops, and single slots hold the start color, so no call can divide by zero or leave entries uninitialized:
 
 ```zig
-pub const ansi88 = [88]AnsiRgb{ ... };
+tint.palette.ramp(&out, start, end);       // two-color interpolation
+tint.palette.gradient(&out, &stops);      // any number of stops
+tint.palette.hue(&out);                   // full saturated wheel
+tint.palette.sequential(&out, hue);       // one hue, light to dark
+tint.palette.diverging(&out, .{ a, b });  // two hues through a light center
+tint.palette.categorical(&out);           // evenly spaced distinct hues
 ```
 
-Full ANSI 88-color palette as RGB values (comptime-generated). Includes 16 standard colors, 8x8x8 color cube (indices 16-79), and 8 grayscale ramp (indices 80-87).
+## Harmony Schemes
 
-### ansi88_names
+Each scheme writes up to `out.len` colors and returns the slice that was written, so short buffers truncate instead of failing:
 
 ```zig
-pub const ansi88_names = [88][]const u8{ ... };
+tint.palette.complementary(&out, base);
+tint.palette.analogous(&out, base);
+tint.palette.triadic(&out, base);
+tint.palette.tetradic(&out, base);
+tint.palette.splitComplementary(&out, base);
 ```
 
-Names for the ANSI 88-color palette.
+## Subsets
 
-### ansi256
+Five ready-made groups for quick picks, all `[8]Rgb`:
 
 ```zig
-pub const ansi256 = [256]AnsiRgb{ ... };
+tint.palette.warm; tint.palette.cool; tint.palette.earth;
+tint.palette.pastel; tint.palette.neon;
 ```
 
-Full ANSI 256-color palette as RGB values (comptime-generated).
+## Analysis
 
-## Types
-
-### AnsiRgb
+Grade a palette before shipping it. Contrast functions scan every pair and need at least two colors; `closestPair` reports the smallest CIEDE2000 gap; `isMonotonicLuminance` accepts ramps running in either direction:
 
 ```zig
-pub const AnsiRgb = struct {
-    r: u8,
-    g: u8,
-    b: u8,
-};
+tint.palette.Readability;              // fail/large/aa/aaa
+tint.palette.readability(fg, bg);
+tint.palette.minContrastRatio(&colors);
+tint.palette.maxContrastRatio(&colors);
+tint.palette.hasDuplicates(&colors);
+tint.palette.closestPair(&colors);
+tint.palette.isMonotonicLuminance(&colors);
 ```
-
-## Functions
-
-### rgb6
-
-```zig
-pub fn rgb6(r: u8, g: u8, b: u8) struct { index: u8 }
-```
-
-Creates an ANSI 256 color from 6x6x6 RGB cube coordinates.
-
-- `r`, `g`, `b` must be in range 0-5
-- Returns the ANSI 256 index (16-231)
-
-### rgb8
-
-```zig
-pub fn rgb8(r: u8, g: u8, b: u8) struct { index: u8 }
-```
-
-Creates an ANSI 88 color from 8x8x8 RGB cube coordinates.
-
-- `r`, `g`, `b` must be in range 0-7
-- Returns the ANSI 88 index (16-79)
-
-### gray
-
-```zig
-pub fn gray(level: u8) struct { index: u8 }
-```
-
-Creates an ANSI 256 grayscale color.
-
-- `level` must be in range 0-23 (maps to indices 232-255)
-- Returns the ANSI 256 index
-
-### gray88
-
-```zig
-pub fn gray88(level: u8) struct { index: u8 }
-```
-
-Creates an ANSI 88 grayscale color.
-
-- `level` must be in range 0-7 (maps to indices 80-87)
-- Returns the ANSI 88 index
-
-### ramp
-
-```zig
-pub fn ramp(start: RgbColor, end: RgbColor, steps: u8) [256]RgbColor
-```
-
-Generates a linear color interpolation between two colors.
-
-### gradient
-
-```zig
-pub fn gradient(c1: RgbColor, c2: RgbColor, c3: RgbColor, steps: u8) [256]RgbColor
-```
-
-Generates a three-color gradient.
-
-### multiGradient
-
-```zig
-pub fn multiGradient(stops: []const RgbColor, steps: u8) [256]RgbColor
-```
-
-Generates a multi-stop gradient between an array of color stops. Interpolates linearly between consecutive stops.
-
-### hueGradient
-
-```zig
-pub fn hueGradient(steps: u8) [256]RgbColor
-```
-
-Generates a rainbow gradient by rotating through the full hue range in HSL space.
-
-### colorWheel
-
-```zig
-pub fn colorWheel(steps: u8) [256]RgbColor
-```
-
-Generates a full hue rainbow.
-
-## Palette Subsets
-
-### warm_palette
-
-```zig
-pub const warm_palette = [8]RgbColor{ ... };
-```
-
-8 warm colors (reds, oranges, yellows).
-
-### cool_palette
-
-```zig
-pub const cool_palette = [8]RgbColor{ ... };
-```
-
-8 cool colors (blues, cyans, teals).
-
-### earth_palette
-
-```zig
-pub const earth_palette = [8]RgbColor{ ... };
-```
-
-8 earth tones (browns, tans).
-
-### pastel_palette
-
-```zig
-pub const pastel_palette = [8]RgbColor{ ... };
-```
-
-8 pastel colors.
-
-### neon_palette
-
-```zig
-pub const neon_palette = [8]RgbColor{ ... };
-```
-
-8 neon/bright colors.

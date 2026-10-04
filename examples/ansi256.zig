@@ -2,43 +2,47 @@ const std = @import("std");
 const tint = @import("tint");
 
 pub fn main() void {
-    // ANSI 256 colors
-    std.debug.print("=== ANSI 256 Colors ===\n", .{});
+    const reset = tint.ansi.reset.all;
 
-    // Standard colors (0-15)
-    std.debug.print("{s}Index 1 (Red){s}\n", .{ tint.fg(tint.ansi256(1)), tint.reset });
-    std.debug.print("{s}Index 2 (Green){s}\n", .{ tint.fg(tint.ansi256(2)), tint.reset });
-    std.debug.print("{s}Index 3 (Yellow){s}\n", .{ tint.fg(tint.ansi256(3)), tint.reset });
-
-    // RGB cube colors (16-231)
-    std.debug.print("{s}Index 196 (Pure Red){s}\n", .{ tint.fg(tint.ansi256(196)), tint.reset });
-    std.debug.print("{s}Index 46 (Pure Green){s}\n", .{ tint.fg(tint.ansi256(46)), tint.reset });
-    std.debug.print("{s}Index 21 (Pure Blue){s}\n", .{ tint.fg(tint.ansi256(21)), tint.reset });
-    std.debug.print("{s}Index 208 (Orange){s}\n", .{ tint.fg(tint.ansi256(208)), tint.reset });
-
-    // Grayscale ramp (232-255)
-    std.debug.print("\n=== Grayscale Ramp ===\n", .{});
-    var i: u8 = 0;
-    while (i < 24) : (i += 1) {
-        const idx: u8 = 232 + i;
-        std.debug.print("{s}Gray {d:3}{s} ", .{ tint.fg(tint.ansi256(idx)), i, tint.reset });
+    std.debug.print("=== 256-colour palette ===\n", .{});
+    for (0..256) |i| {
+        const c = tint.color.ansi256.index(@intCast(i));
+        std.debug.print("{s}##{s}", .{ c.fg().slice(), reset });
+        if (i % 16 == 15) {
+            std.debug.print("\n", .{});
+        } else {
+            std.debug.print(" ", .{});
+        }
     }
-    std.debug.print("\n", .{});
 
-    // Using RGB cube helper
-    std.debug.print("\n=== RGB Cube ===\n", .{});
-    const red_cube = tint.palette.rgb6(5, 0, 0);
-    std.debug.print("{s}RGB(5,0,0) -> Index {d}{s}\n", .{
-        tint.fg(tint.ansi256(red_cube.index)),
-        red_cube.index,
-        tint.reset,
-    });
+    std.debug.print("\n=== 88-colour palette ===\n", .{});
+    for (0..88) |i| {
+        const entry = tint.palette.ansi88[i];
+        const c = tint.color.rgb(entry.r, entry.g, entry.b);
+        std.debug.print("{s}##{s}", .{ c.fg().slice(), reset });
+        if (i % 16 == 15) {
+            std.debug.print("\n", .{});
+        } else {
+            std.debug.print(" ", .{});
+        }
+    }
 
-    // Using grayscale helper
-    const gray = tint.palette.gray(12);
-    std.debug.print("{s}Gray(12) -> Index {d}{s}\n", .{
-        tint.fg(tint.ansi256(gray.index)),
-        gray.index,
-        tint.reset,
-    });
+    std.debug.print("\n=== Index constructors ===\n", .{});
+    const entries = .{
+        tint.color.ansi256.rgb(5, 0, 0),
+        tint.color.ansi256.rgb(0, 0, 5),
+        tint.color.ansi256.gray(12),
+        tint.color.ansi88.rgb(3, 2, 1),
+        tint.color.ansi88.gray(7),
+    };
+    inline for (entries) |c| {
+        std.debug.print("{s}## index {d:>3}{s}\n", .{ c.fg().slice(), c.ansi256.index, reset });
+    }
+
+    std.debug.print("\n=== Downgrade ladder ===\n", .{});
+    const source = tint.color.rgb(200, 30, 90);
+    inline for (.{ tint.ansi.Capability.trueColor, .ansi256, .ansi16, .none }) |cap| {
+        const rendered = tint.ansi.render(source, .foreground, cap);
+        std.debug.print("{s}{s:<10}{s} {s}\n", .{ rendered.slice(), @tagName(cap), reset, rendered.slice() });
+    }
 }

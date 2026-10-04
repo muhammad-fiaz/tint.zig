@@ -1,125 +1,78 @@
+---
+title: Getting Started
+description: "Get started with tint.zig: install the library, print your first colors, and learn how colors, styles and capabilities fit together."
+keywords: "tint.zig getting started, zig terminal colors tutorial, zig styling quickstart"
+---
+
 # Getting Started
 
-a guide to help you get started with `tint.zig`, a fast, minimal, zero dependency terminal color and text styling library for Zig 0.16.0+. This guide will walk you through installation, basic usage, and the design philosophy behind the library.
+`tint.zig` 0.0.2 is a terminal color and text styling library for Zig 0.17.0. It builds ANSI/SGR escape sequences and returns them as values. Your application owns all output.
 
-## Installation
+## Namespaces
 
-### Method 1: Zig Fetch (Recommended)
-
-**Stable Release (v0.0.1):**
-
-```bash
-zig fetch --save https://github.com/muhammad-fiaz/tint.zig/archive/refs/tags/0.0.1.tar.gz
+```text
+tint
+├── color    colors, spaces, conversion, metrics, interpolation
+├── style    composable text styles and presets
+├── palette  tables, ramps, gradients, schemes, analysis
+├── theme    semantic themes and contrast validation
+└── ansi     sequences, resets, capabilities
 ```
 
-**Development Branch:**
-
-```bash
-zig fetch --save git+https://github.com/muhammad-fiaz/tint.zig.git
-```
-
-### Method 2: Manual `build.zig.zon` Configuration
-
-**Stable Release:**
-
-```zig
-.dependencies = .{
-    .tint = .{
-        .url = "https://github.com/muhammad-fiaz/tint.zig/archive/refs/tags/0.0.1.tar.gz",
-        .hash = "...", // Run `zig fetch --save <url>` to generate the hash.
-    },
-},
-```
-
-**Development Branch:**
-
-```zig
-.dependencies = .{
-    .tint = .{
-        .url = "git+https://github.com/muhammad-fiaz/tint.zig.git",
-        .hash = "...", // Run `zig fetch --save <url>` to generate the hash.
-    },
-},
-```
-
-### Method 3: Local Source Checkout
-
-```bash
-git clone https://github.com/muhammad-fiaz/tint.zig.git
-cd tint.zig
-zig build
-```
-
-To use a local checkout from another project, add a path dependency to your `build.zig.zon`:
-
-```zig
-.dependencies = .{
-    .tint = .{
-        .path = "../tint.zig",
-    },
-},
-```
-
-### Configure build.zig
-
-Then add it to your `build.zig`:
-
-```zig
-const tint_dep = b.dependency("tint", .{
-    .target = target,
-    .optimize = optimize,
-});
-
-exe.root_module.addImport("tint", tint_dep.module("tint"));
-```
-
-## Quick Start
+## First Program
 
 ```zig
 const std = @import("std");
 const tint = @import("tint");
 
 pub fn main() void {
-    // Basic colored output
-    std.debug.print("{s}Error: something went wrong!{s}\n", .{
-        tint.fg(.{ .ansi4 = .red }),
-        tint.reset,
-    });
+    const reset = tint.ansi.reset.all;
 
-    // Using RGB colors
-    std.debug.print("{s}Custom color{s}\n", .{
-        tint.fg(tint.rgb(255, 100, 20)),
-        tint.reset,
-    });
+    std.debug.print("{s}red{s}\n", .{ tint.color.red.fg().slice(), reset });
+    std.debug.print("{s}custom{s}\n", .{ tint.color.hex(0xFF6600).fg().slice(), reset });
 
-    // Using HEX colors
-    std.debug.print("{s}HEX color{s}\n", .{
-        tint.fg(tint.hex(0xFF6600)),
-        tint.reset,
-    });
-
-    // Using styles
-    const error_style = tint.style(.{
-        .fg = tint.hex(0xEF4444),
-        .bold = true,
-    });
-    std.debug.print("{s}Bold error!{s}\n", .{ error_style.toAnsi(), tint.reset });
+    const errorStyle = tint.style.bold.fg(tint.color.hex(0xEF4444));
+    std.debug.print("{s}bold error{s}\n", .{ errorStyle.toAnsi().slice(), reset });
 }
 ```
 
-> [!TIP]
-> Use `tint.style()` to create reusable, composable styles. Call `.with()` to extend a style without modifying the original.
+Run it with `zig build run-basic` after cloning, or adapt it into your project.
 
-## Design Philosophy
+## Colors Are Values
 
-`tint.zig` follows one fundamental rule:
+```zig
+const red = tint.color.red;
+const coral = tint.color.coral;
+const custom = tint.color.rgb(255, 100, 20);
 
-> **Explicit input, explicit color/style representation, correct ANSI/SGR code, returned to the client.**
+const rgb = custom.toRgb();
+const hsl = custom.toHsl();
+const lighter = custom.lighten(0.2);
+const mixed = red.mix(tint.color.blue, 0.5);
+```
 
-The library never:
-- Prints to stdout/stderr
-- Owns the writer
-- Modifies terminal state
-- Auto-detects capabilities
+No strings, no metadata pairs. The value is the color.
 
-Your application owns all output.
+## Styles Compose
+
+```zig
+const heading = tint.style.bold.fg(tint.color.cyan);
+const warning = heading.merge(.{ .underline = true });
+
+std.debug.print("{s}hi{s}\n", .{ heading.toAnsi().slice(), tint.ansi.reset.all });
+```
+
+## Capabilities Are Explicit
+
+```zig
+const sequence = tint.ansi.render(tint.color.coral, .foreground, .ansi256);
+```
+
+tint.zig never inspects the environment. You state `none`, `ansi16`, `ansi256` or `trueColor`.
+
+## Next Steps
+
+- [Installation](/guide/installation)
+- [Colors](/guide/colors)
+- [Styles](/guide/styles)
+- [API Reference](/api/)

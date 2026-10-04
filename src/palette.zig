@@ -1,265 +1,264 @@
+//! Terminal palettes, ramp generators and palette checks.
+//!
+//! Everything writes into caller owned buffers: tint.zig never allocates.
+
 const std = @import("std");
 const testing = std.testing;
 const color = @import("color.zig");
-const RgbColor = color.RgbColor;
+const util = @import("util.zig");
 
-pub const AnsiRgb = struct {
-    r: u8,
-    g: u8,
-    b: u8,
-};
+const Rgb = color.Rgb;
+const Color = color.Color;
 
-pub const ansi16 = [16]AnsiRgb{
-    .{ .r = 0, .g = 0, .b = 0 },
-    .{ .r = 170, .g = 0, .b = 0 },
-    .{ .r = 0, .g = 170, .b = 0 },
-    .{ .r = 170, .g = 170, .b = 0 },
-    .{ .r = 0, .g = 0, .b = 170 },
-    .{ .r = 170, .g = 0, .b = 170 },
-    .{ .r = 0, .g = 170, .b = 170 },
-    .{ .r = 170, .g = 170, .b = 170 },
-    .{ .r = 85, .g = 85, .b = 85 },
-    .{ .r = 255, .g = 85, .b = 85 },
-    .{ .r = 85, .g = 255, .b = 85 },
-    .{ .r = 255, .g = 255, .b = 85 },
-    .{ .r = 85, .g = 85, .b = 255 },
-    .{ .r = 255, .g = 85, .b = 255 },
-    .{ .r = 85, .g = 255, .b = 255 },
-    .{ .r = 255, .g = 255, .b = 255 },
-};
+/// The 16 base colours every terminal must support.
+pub const ansi16 = color.ansi16;
+/// Names of `ansi16`, indexed the same way.
+pub const ansi16Names = color.ansi16Names;
 
-pub const ansi16_names = [16][]const u8{
-    "black",
-    "red",
-    "green",
-    "yellow",
-    "blue",
-    "magenta",
-    "cyan",
-    "white",
-    "bright_black",
-    "bright_red",
-    "bright_green",
-    "bright_yellow",
-    "bright_blue",
-    "bright_magenta",
-    "bright_cyan",
-    "bright_white",
-};
+/// xterm's 88-colour palette: the 16 base colours, a 4x4x4 cube on the levels
+/// `0, 139, 205, 255` at `16...79`, and an 8 step grayscale ramp at `80...87`
+/// that deliberately omits black and white.
+pub const ansi88 = generateAnsi88();
 
+/// Names of `ansi88`, indexed the same way.
+pub const ansi88Names = generateAnsi88Names();
+
+/// xterm's 256-colour palette.
 pub const ansi256 = generateAnsi256();
 
-fn generateAnsi256() [256]AnsiRgb {
-    var palette_arr: [256]AnsiRgb = undefined;
-    palette_arr[0] = .{ .r = 0, .g = 0, .b = 0 };
-    palette_arr[1] = .{ .r = 170, .g = 0, .b = 0 };
-    palette_arr[2] = .{ .r = 0, .g = 170, .b = 0 };
-    palette_arr[3] = .{ .r = 170, .g = 170, .b = 0 };
-    palette_arr[4] = .{ .r = 0, .g = 0, .b = 170 };
-    palette_arr[5] = .{ .r = 170, .g = 0, .b = 170 };
-    palette_arr[6] = .{ .r = 0, .g = 170, .b = 170 };
-    palette_arr[7] = .{ .r = 170, .g = 170, .b = 170 };
-    palette_arr[8] = .{ .r = 85, .g = 85, .b = 85 };
-    palette_arr[9] = .{ .r = 255, .g = 85, .b = 85 };
-    palette_arr[10] = .{ .r = 85, .g = 255, .b = 85 };
-    palette_arr[11] = .{ .r = 255, .g = 255, .b = 85 };
-    palette_arr[12] = .{ .r = 85, .g = 85, .b = 255 };
-    palette_arr[13] = .{ .r = 255, .g = 85, .b = 255 };
-    palette_arr[14] = .{ .r = 85, .g = 255, .b = 255 };
-    palette_arr[15] = .{ .r = 255, .g = 255, .b = 255 };
-    comptime var i: u16 = 16;
-    inline while (i < 232) : (i += 1) {
-        const idx = i - 16;
-        const b_val: u8 = @intCast(idx % 6);
-        const g_val: u8 = @intCast((idx / 6) % 6);
-        const r_val: u8 = @intCast(idx / 36);
-        palette_arr[i] = .{
-            .r = if (r_val == 0) 0 else 55 + r_val * 40,
-            .g = if (g_val == 0) 0 else 55 + g_val * 40,
-            .b = if (b_val == 0) 0 else 55 + b_val * 40,
-        };
-    }
-    comptime var j: u16 = 232;
-    inline while (j < 256) : (j += 1) {
-        const gray_val: u8 = @intCast(8 + (j - 232) * 10);
-        palette_arr[j] = .{ .r = gray_val, .g = gray_val, .b = gray_val };
-    }
-    return palette_arr;
+fn generateAnsi256() [256]Rgb {
+    @setEvalBranchQuota(10000);
+    var table: [256]Rgb = undefined;
+    for (&table, 0..) |*slot, i| slot.* = color.ansi256ToRgb(@intCast(i));
+    return table;
 }
 
-pub fn rgb6(r: u8, g: u8, b: u8) struct { index: u8 } {
-    return .{ .index = 16 + 36 * r + 6 * g + b };
-}
+fn generateAnsi88() [88]Rgb {
+    var table: [88]Rgb = undefined;
+    for (0..16) |i| table[i] = ansi16[i];
 
-pub fn gray(level: u8) struct { index: u8 } {
-    return .{ .index = 232 + level };
-}
-
-pub fn ramp(start: RgbColor, end: RgbColor, steps: u8) [256]RgbColor {
-    var result: [256]RgbColor = undefined;
-    const n = @min(steps, @as(u8, 255));
-    var i: u16 = 0;
-    while (i <= n) : (i += 1) {
-        const t = @as(f64, @floatFromInt(i)) / @as(f64, @floatFromInt(n));
-        result[i] = .{
-            .r = @intFromFloat(@as(f64, @floatFromInt(start.r)) * (1.0 - t) + @as(f64, @floatFromInt(end.r)) * t),
-            .g = @intFromFloat(@as(f64, @floatFromInt(start.g)) * (1.0 - t) + @as(f64, @floatFromInt(end.g)) * t),
-            .b = @intFromFloat(@as(f64, @floatFromInt(start.b)) * (1.0 - t) + @as(f64, @floatFromInt(end.b)) * t),
-        };
+    const levels = [4]u8{ 0, 139, 205, 255 };
+    for (0..64) |i| {
+        table[16 + i] = .{ .r = levels[i / 16], .g = levels[(i / 4) % 4], .b = levels[i % 4] };
     }
-    return result;
+
+    const grays = [8]u8{ 46, 92, 115, 139, 162, 185, 208, 231 };
+    for (grays, 0..) |level, i| table[80 + i] = .{ .r = level, .g = level, .b = level };
+    return table;
 }
 
-pub fn gradient(c1: RgbColor, c2: RgbColor, c3: RgbColor, steps: u8) [256]RgbColor {
-    var result: [256]RgbColor = undefined;
-    const half = steps / 2;
-    var i: u16 = 0;
-    while (i <= half) : (i += 1) {
-        const t = @as(f64, @floatFromInt(i)) / @as(f64, @floatFromInt(half));
-        result[i] = .{
-            .r = @intFromFloat(@as(f64, @floatFromInt(c1.r)) * (1.0 - t) + @as(f64, @floatFromInt(c2.r)) * t),
-            .g = @intFromFloat(@as(f64, @floatFromInt(c1.g)) * (1.0 - t) + @as(f64, @floatFromInt(c2.g)) * t),
-            .b = @intFromFloat(@as(f64, @floatFromInt(c1.b)) * (1.0 - t) + @as(f64, @floatFromInt(c2.b)) * t),
-        };
+fn generateAnsi88Names() [88][]const u8 {
+    @setEvalBranchQuota(100000);
+    var names: [88][]const u8 = undefined;
+    for (ansi16Names, 0..) |name, i| names[i] = name;
+    comptime var i: usize = 0;
+    inline while (i < 64) : (i += 1) {
+        names[16 + i] = comptime std.fmt.comptimePrint("cube_{d}_{d}_{d}", .{ i / 16, (i / 4) % 4, i % 4 });
     }
-    var j: u16 = 0;
-    while (j <= half) : (j += 1) {
-        const t = @as(f64, @floatFromInt(j)) / @as(f64, @floatFromInt(half));
-        result[half + j] = .{
-            .r = @intFromFloat(@as(f64, @floatFromInt(c2.r)) * (1.0 - t) + @as(f64, @floatFromInt(c3.r)) * t),
-            .g = @intFromFloat(@as(f64, @floatFromInt(c2.g)) * (1.0 - t) + @as(f64, @floatFromInt(c3.g)) * t),
-            .b = @intFromFloat(@as(f64, @floatFromInt(c2.b)) * (1.0 - t) + @as(f64, @floatFromInt(c3.b)) * t),
-        };
+    comptime var j: usize = 0;
+    inline while (j < 8) : (j += 1) {
+        names[80 + j] = comptime std.fmt.comptimePrint("gray_{d}", .{j});
     }
-    return result;
+    return names;
 }
 
-pub fn colorWheel(steps: u8) [256]RgbColor {
-    var result: [256]RgbColor = undefined;
-    var i: u16 = 0;
-    while (i <= steps) : (i += 1) {
-        const hue = @as(f64, @floatFromInt(i)) / @as(f64, @floatFromInt(steps)) * 360.0;
-        const h_f = hue;
-        const s_f = 1.0;
-        const l_f = 0.5;
-        const c = (1.0 - @abs(2.0 * l_f - 1.0)) * s_f;
-        const x = c * (1.0 - @abs(@rem(h_f / 60.0, 2.0) - 1.0));
-        const m = l_f - c / 2.0;
-        var r: f64 = 0;
-        var g: f64 = 0;
-        var b: f64 = 0;
-        if (h_f < 60) {
-            r = c;
-            g = x;
-            b = 0;
-        } else if (h_f < 120) {
-            r = x;
-            g = c;
-            b = 0;
-        } else if (h_f < 180) {
-            r = 0;
-            g = c;
-            b = x;
-        } else if (h_f < 240) {
-            r = 0;
-            g = x;
-            b = c;
-        } else if (h_f < 300) {
-            r = x;
-            g = 0;
-            b = c;
-        } else {
-            r = c;
-            g = 0;
-            b = x;
-        }
-        result[i] = .{
-            .r = @intFromFloat((r + m) * 255.0),
-            .g = @intFromFloat((g + m) * 255.0),
-            .b = @intFromFloat((b + m) * 255.0),
-        };
-    }
-    return result;
+/// Fills `out` with a linear interpolation from `start` to `end`. Both ends
+/// are exact. Empty slices are a no-op.
+pub fn ramp(out: []Rgb, start: Rgb, end: Rgb) void {
+    const stops = [2]Rgb{ start, end };
+    gradient(out, &stops);
 }
 
-pub fn multiGradient(stops: []const RgbColor, steps: u8) [256]RgbColor {
-    var result: [256]RgbColor = undefined;
-    if (stops.len == 0) return result;
+/// Fills `out` by interpolating through `stops`, which must not be empty. The
+/// first and last elements are exactly the first and last stop.
+pub fn gradient(out: []Rgb, stops: []const Rgb) void {
+    std.debug.assert(stops.len > 0);
+    if (out.len == 0) return;
     if (stops.len == 1) {
-        var i: u16 = 0;
-        while (i <= steps) : (i += 1) {
-            result[i] = stops[0];
-        }
-        return result;
+        for (out) |*slot| slot.* = stops[0];
+        return;
     }
-    const n = @min(steps, @as(u8, 255));
-    var i: u16 = 0;
-    while (i <= n) : (i += 1) {
-        const t = @as(f64, @floatFromInt(i)) / @as(f64, @floatFromInt(n));
-        const segment = t * @as(f64, @floatFromInt(stops.len - 1));
-        const idx: usize = @intFromFloat(@min(@floor(segment), @as(f64, @floatFromInt(stops.len - 2))));
-        const local_t = segment - @as(f64, @floatFromInt(idx));
-        const c1 = stops[idx];
-        const c2 = stops[@min(idx + 1, stops.len - 1)];
-        result[i] = .{
-            .r = @intFromFloat(@as(f64, @floatFromInt(c1.r)) * (1.0 - local_t) + @as(f64, @floatFromInt(c2.r)) * local_t),
-            .g = @intFromFloat(@as(f64, @floatFromInt(c1.g)) * (1.0 - local_t) + @as(f64, @floatFromInt(c2.g)) * local_t),
-            .b = @intFromFloat(@as(f64, @floatFromInt(c1.b)) * (1.0 - local_t) + @as(f64, @floatFromInt(c2.b)) * local_t),
-        };
+
+    const last = stops.len - 1;
+    const divisor: f64 = @floatFromInt(out.len - 1);
+    for (out, 0..) |*slot, i| {
+        const t: f64 = if (out.len == 1) 0 else @as(f64, @floatFromInt(i)) / divisor;
+        const position = t * @as(f64, @floatFromInt(last));
+        const index: usize = @min(@as(usize, @intFromFloat(@floor(position))), last - 1);
+        slot.* = interpolate(stops[index], stops[index + 1], position - @as(f64, @floatFromInt(index)));
     }
-    return result;
 }
 
-pub fn hueGradient(steps: u8) [256]RgbColor {
-    var result: [256]RgbColor = undefined;
-    const n = @min(steps, @as(u8, 255));
-    var i: u16 = 0;
-    while (i <= n) : (i += 1) {
-        const hue = @as(f64, @floatFromInt(i)) / @as(f64, @floatFromInt(n)) * 360.0;
-        const h_f = hue;
-        const s_f = 1.0;
-        const l_f = 0.5;
-        const c = (1.0 - @abs(2.0 * l_f - 1.0)) * s_f;
-        const x = c * (1.0 - @abs(@rem(h_f / 60.0, 2.0) - 1.0));
-        const m = l_f - c / 2.0;
-        var r: f64 = 0;
-        var g: f64 = 0;
-        var b: f64 = 0;
-        if (h_f < 60) {
-            r = c;
-            g = x;
-            b = 0;
-        } else if (h_f < 120) {
-            r = x;
-            g = c;
-            b = 0;
-        } else if (h_f < 180) {
-            r = 0;
-            g = c;
-            b = x;
-        } else if (h_f < 240) {
-            r = 0;
-            g = x;
-            b = c;
-        } else if (h_f < 300) {
-            r = x;
-            g = 0;
-            b = c;
+/// Fills `out` with a fully saturated sweep around the hue circle, starting
+/// and ending at red.
+pub fn hue(out: []Rgb) void {
+    if (out.len == 0) return;
+    if (out.len == 1) {
+        out[0] = color.Hsl.init(0, 100, 50).toRgb();
+        return;
+    }
+    const divisor: f64 = @floatFromInt(out.len - 1);
+    for (out, 0..) |*slot, i| {
+        const angle: f64 = @as(f64, @floatFromInt(i)) / divisor * 360.0;
+        slot.* = color.Hsl.init(@intFromFloat(angle), 100, 50).toRgb();
+    }
+}
+
+/// Fills `out` with a single-hue sequential ramp from almost white to almost
+/// black, at fixed 80% saturation.
+pub fn sequential(out: []Rgb, baseHue: u16) void {
+    if (out.len == 0) return;
+    const divisor: f64 = @floatFromInt(out.len - 1);
+    for (out, 0..) |*slot, i| {
+        const t: f64 = if (out.len == 1) 0 else @as(f64, @floatFromInt(i)) / divisor;
+        slot.* = color.Hsl.init(baseHue, 80, @intFromFloat(92 - t * 80)).toRgb();
+    }
+}
+
+/// Fills `out` with a diverging ramp: `hues[0]` dark through a light centre to
+/// `hues[1]` dark. Both ends are fully saturated.
+pub fn diverging(out: []Rgb, hues: [2]u16) void {
+    if (out.len == 0) return;
+    const half = (out.len + 1) / 2;
+    for (out, 0..) |*slot, i| {
+        if (i < half) {
+            const t: f64 = if (half == 1) 1 else @as(f64, @floatFromInt(i)) / @as(f64, @floatFromInt(half - 1));
+            slot.* = color.Hsl.init(hues[0], @intFromFloat(20 + t * 60), @intFromFloat(20 + t * 72)).toRgb();
         } else {
-            r = c;
-            g = 0;
-            b = x;
+            const second = out.len - half;
+            const t: f64 = if (second == 1) 1 else @as(f64, @floatFromInt(i - half)) / @as(f64, @floatFromInt(second - 1));
+            slot.* = color.Hsl.init(hues[1], @intFromFloat(80 - t * 60), @intFromFloat(92 - t * 72)).toRgb();
         }
-        result[i] = .{
-            .r = @intFromFloat((r + m) * 255.0),
-            .g = @intFromFloat((g + m) * 255.0),
-            .b = @intFromFloat((b + m) * 255.0),
-        };
     }
-    return result;
 }
 
-pub const warm_palette = [8]RgbColor{
+/// Fills `out` with evenly spaced, maximally distinct hues at 75% saturation
+/// and 60% lightness.
+pub fn categorical(out: []Rgb) void {
+    if (out.len == 0) return;
+    const step: f64 = 360.0 / @as(f64, @floatFromInt(out.len));
+    for (out, 0..) |*slot, i| {
+        slot.* = color.Hsl.init(@intFromFloat(@as(f64, @floatFromInt(i)) * step), 75, 60).toRgb();
+    }
+}
+
+fn interpolate(from: Rgb, to: Rgb, t: f64) Rgb {
+    return .{ .r = util.mixInt(from.r, to.r, t), .g = util.mixInt(from.g, to.g, t), .b = util.mixInt(from.b, to.b, t) };
+}
+
+/// Writes up to `out.len` scheme colours and returns what was written.
+pub fn complementary(out: []Color, base: Color) []Color {
+    const scheme = [_]Color{base.complementary()};
+    return copyScheme(out, &scheme);
+}
+
+/// Writes up to `out.len` scheme colours and returns what was written.
+pub fn analogous(out: []Color, base: Color) []Color {
+    const scheme = [_]Color{ base.analogous()[0], base, base.analogous()[1] };
+    return copyScheme(out, &scheme);
+}
+
+/// Writes up to `out.len` scheme colours and returns what was written.
+pub fn triadic(out: []Color, base: Color) []Color {
+    const scheme = [_]Color{ base, base.triadic()[0], base.triadic()[1] };
+    return copyScheme(out, &scheme);
+}
+
+/// Writes up to `out.len` scheme colours and returns what was written.
+pub fn tetradic(out: []Color, base: Color) []Color {
+    const t = base.tetradic();
+    const scheme = [_]Color{ base, t[0], t[1], t[2] };
+    return copyScheme(out, &scheme);
+}
+
+/// Writes up to `out.len` scheme colours and returns what was written.
+pub fn splitComplementary(out: []Color, base: Color) []Color {
+    const s = base.splitComplementary();
+    const scheme = [_]Color{ base, s[0], s[1] };
+    return copyScheme(out, &scheme);
+}
+
+fn copyScheme(out: []Color, scheme: []const Color) []Color {
+    const n = @min(out.len, scheme.len);
+    @memcpy(out[0..n], scheme[0..n]);
+    return out[0..n];
+}
+
+/// How readable `fg` is on `bg`, by WCAG ratio.
+pub const Readability = enum {
+    /// Below 3:1, unreadable body text.
+    fail,
+    /// At least 3:1, large text only.
+    large,
+    /// At least 4.5:1, normal text.
+    aa,
+    /// At least 7:1.
+    aaa,
+};
+
+pub fn readability(fg: Color, bg: Color) Readability {
+    const ratio = fg.contrastRatio(bg);
+    if (ratio >= 7) return .aaa;
+    if (ratio >= 4.5) return .aa;
+    if (ratio >= 3) return .large;
+    return .fail;
+}
+
+/// The lowest contrast ratio of any pair. Requires at least two colours.
+pub fn minContrastRatio(colors: []const Color) f64 {
+    std.debug.assert(colors.len >= 2);
+    var min = std.math.floatMax(f64);
+    for (colors, 0..) |a, i| {
+        for (colors[i + 1 ..]) |b| min = @min(min, a.contrastRatio(b));
+    }
+    return min;
+}
+
+/// The highest contrast ratio of any pair. Requires at least two colours.
+pub fn maxContrastRatio(colors: []const Color) f64 {
+    std.debug.assert(colors.len >= 2);
+    var max: f64 = 0;
+    for (colors, 0..) |a, i| {
+        for (colors[i + 1 ..]) |b| max = @max(max, a.contrastRatio(b));
+    }
+    return max;
+}
+
+/// True when two entries convert to the same RGB.
+pub fn hasDuplicates(colors: []const Color) bool {
+    for (colors, 0..) |a, i| {
+        for (colors[i + 1 ..]) |b| {
+            if (std.meta.eql(a.toRgb(), b.toRgb())) return true;
+        }
+    }
+    return false;
+}
+
+/// The smallest CIEDE2000 distance of any pair. Requires at least two colours.
+pub fn closestPair(colors: []const Color) f64 {
+    std.debug.assert(colors.len >= 2);
+    var min = std.math.floatMax(f64);
+    for (colors, 0..) |a, i| {
+        for (colors[i + 1 ..]) |b| min = @min(min, a.deltaE2000(b));
+    }
+    return min;
+}
+
+/// True when luminance is ordered along the slice, rising or falling but never
+/// changing direction.
+pub fn isMonotonicLuminance(colors: []const Color) bool {
+    if (colors.len < 2) return true;
+    var rising = false;
+    var falling = false;
+    for (colors[0 .. colors.len - 1], colors[1..]) |a, b| {
+        if (b.luminance() > a.luminance()) rising = true;
+        if (b.luminance() < a.luminance()) falling = true;
+    }
+    return !(rising and falling);
+}
+
+/// Eight warm colours: reds, oranges and yellows.
+pub const warm = [8]Rgb{
     .{ .r = 255, .g = 0, .b = 0 },
     .{ .r = 255, .g = 69, .b = 0 },
     .{ .r = 255, .g = 140, .b = 0 },
@@ -270,7 +269,8 @@ pub const warm_palette = [8]RgbColor{
     .{ .r = 178, .g = 34, .b = 34 },
 };
 
-pub const cool_palette = [8]RgbColor{
+/// Eight cool colours: blues, cyans and teals.
+pub const cool = [8]Rgb{
     .{ .r = 0, .g = 0, .b = 255 },
     .{ .r = 0, .g = 191, .b = 255 },
     .{ .r = 0, .g = 255, .b = 255 },
@@ -281,7 +281,8 @@ pub const cool_palette = [8]RgbColor{
     .{ .r = 100, .g = 149, .b = 237 },
 };
 
-pub const earth_palette = [8]RgbColor{
+/// Eight earth tones: browns, tans and ambers.
+pub const earth = [8]Rgb{
     .{ .r = 139, .g = 69, .b = 19 },
     .{ .r = 160, .g = 82, .b = 45 },
     .{ .r = 210, .g = 180, .b = 140 },
@@ -292,7 +293,8 @@ pub const earth_palette = [8]RgbColor{
     .{ .r = 184, .g = 134, .b = 11 },
 };
 
-pub const pastel_palette = [8]RgbColor{
+/// Eight pastel colours.
+pub const pastel = [8]Rgb{
     .{ .r = 255, .g = 182, .b = 193 },
     .{ .r = 255, .g = 218, .b = 185 },
     .{ .r = 255, .g = 255, .b = 224 },
@@ -303,7 +305,8 @@ pub const pastel_palette = [8]RgbColor{
     .{ .r = 230, .g = 230, .b = 250 },
 };
 
-pub const neon_palette = [8]RgbColor{
+/// Eight saturated, high energy colours.
+pub const neon = [8]Rgb{
     .{ .r = 255, .g = 0, .b = 255 },
     .{ .r = 0, .g = 255, .b = 255 },
     .{ .r = 255, .g = 255, .b = 0 },
@@ -314,143 +317,234 @@ pub const neon_palette = [8]RgbColor{
     .{ .r = 255, .g = 20, .b = 147 },
 };
 
-test "ansi16 has 16 entries" {
+test "palette sizes" {
     try testing.expectEqual(@as(usize, 16), ansi16.len);
-}
-
-test "ansi256 has 256 entries" {
+    try testing.expectEqual(@as(usize, 16), ansi16Names.len);
+    try testing.expectEqual(@as(usize, 88), ansi88.len);
+    try testing.expectEqual(@as(usize, 88), ansi88Names.len);
     try testing.expectEqual(@as(usize, 256), ansi256.len);
+    for ([_][8]Rgb{ warm, cool, earth, pastel, neon }) |subset| {
+        try testing.expectEqual(@as(usize, 8), subset.len);
+    }
 }
 
-test "rgb6 formula" {
-    try testing.expectEqual(@as(u8, 16), rgb6(0, 0, 0).index);
-    try testing.expectEqual(@as(u8, 52), rgb6(1, 0, 0).index);
+test "ansi256 table matches the canonical conversion" {
+    for (ansi256, 0..) |entry, i| {
+        try testing.expectEqual(color.ansi256ToRgb(@intCast(i)), entry);
+    }
+    try testing.expectEqual(Rgb.init(255, 0, 0), ansi256[196]);
+    try testing.expectEqual(Rgb.init(8, 8, 8), ansi256[232]);
+    try testing.expectEqual(Rgb.init(238, 238, 238), ansi256[255]);
 }
 
-test "gray formula" {
-    try testing.expectEqual(@as(u8, 232), gray(0).index);
-    try testing.expectEqual(@as(u8, 255), gray(23).index);
+test "ansi88 layout" {
+    for (ansi16, 0..) |entry, i| try testing.expectEqual(entry, ansi88[i]);
+    try testing.expectEqual(Rgb.init(0, 0, 0), ansi88[16]);
+    try testing.expectEqual(Rgb.init(255, 255, 255), ansi88[79]);
+    try testing.expectEqual(Rgb.init(255, 0, 0), ansi88[16 + 3 * 16]);
+    try testing.expectEqual(Rgb.init(0, 255, 0), ansi88[16 + 3 * 4]);
+    try testing.expectEqual(Rgb.init(0, 0, 255), ansi88[16 + 3]);
+    try testing.expectEqual(Rgb.init(139, 0, 0), ansi88[16 + 16]);
+    try testing.expectEqual(@as(u8, 46), ansi88[80].r);
+    try testing.expectEqual(@as(u8, 231), ansi88[87].r);
+    for (ansi88[80..87], 0..) |entry, i| {
+        try testing.expectEqual(entry.r, entry.g);
+        try testing.expectEqual(entry.g, entry.b);
+        if (i > 0) try testing.expect(entry.r > ansi88[80 + i - 1].r);
+    }
 }
 
-test "palette subsets" {
-    try testing.expectEqual(@as(usize, 8), warm_palette.len);
-    try testing.expectEqual(@as(usize, 8), cool_palette.len);
-    try testing.expectEqual(@as(usize, 8), earth_palette.len);
-    try testing.expectEqual(@as(usize, 8), pastel_palette.len);
-    try testing.expectEqual(@as(usize, 8), neon_palette.len);
+test "palette names line up" {
+    try testing.expectEqualStrings("black", ansi16Names[0]);
+    try testing.expectEqualStrings("brightWhite", ansi16Names[15]);
+    try testing.expectEqualStrings("red", ansi88Names[1]);
+    try testing.expectEqualStrings("cube_3_3_3", ansi88Names[79]);
+    try testing.expectEqualStrings("cube_0_0_0", ansi88Names[16]);
+    try testing.expectEqualStrings("gray_0", ansi88Names[80]);
+    try testing.expectEqualStrings("gray_7", ansi88Names[87]);
 }
 
-test "ramp generates colors" {
-    const r = ramp(.{ .r = 0, .g = 0, .b = 0 }, .{ .r = 255, .g = 255, .b = 255 }, 10);
-    try testing.expectEqual(@as(u8, 0), r[0].r);
-    try testing.expect(r[5].r > 0);
+test "indexed constructors agree with the tables" {
+    try testing.expectEqual(ansi256[196], color.ansi256.rgb(5, 0, 0).toRgb());
+    try testing.expectEqual(@as(u8, 244), color.ansi256.gray(12).ansi256.index);
+    try testing.expectEqual(ansi256[244], color.ansi256.gray(12).toRgb());
+    // 88-palette indices resolve against palette.ansi88 on the terminal;
+    // Ansi256.toRgb always uses the 256-colour defaults.
+    try testing.expectEqual(@as(u8, 73), color.ansi88.rgb(3, 2, 1).ansi256.index);
+    try testing.expectEqual(Rgb.init(255, 205, 139), ansi88[73]);
+    try testing.expectEqual(@as(u8, 80), color.ansi88.gray(0).ansi256.index);
+    try testing.expectEqual(@as(u8, 46), ansi88[80].r);
 }
 
-test "gradient generates colors" {
-    const g = gradient(
-        .{ .r = 255, .g = 0, .b = 0 },
-        .{ .r = 0, .g = 255, .b = 0 },
-        .{ .r = 0, .g = 0, .b = 255 },
-        10,
-    );
-    try testing.expectEqual(@as(u8, 255), g[0].r);
+test "ramp fills the whole buffer exactly" {
+    var buffer: [11]Rgb = undefined;
+    ramp(&buffer, .{ .r = 0, .g = 0, .b = 0 }, .{ .r = 255, .g = 255, .b = 255 });
+    try testing.expectEqual(Rgb.init(0, 0, 0), buffer[0]);
+    try testing.expectEqual(Rgb.init(255, 255, 255), buffer[10]);
+    for (buffer, 0..) |entry, i| {
+        const expected: u8 = @intFromFloat(@round(@as(f64, @floatFromInt(i)) / 10.0 * 255.0));
+        try testing.expectEqual(expected, entry.r);
+        try testing.expectEqual(entry.r, entry.g);
+        try testing.expectEqual(entry.g, entry.b);
+    }
+
+    var empty: [0]Rgb = .{};
+    ramp(&empty, .{ .r = 1, .g = 2, .b = 3 }, .{ .r = 4, .g = 5, .b = 6 });
+
+    var single: [1]Rgb = undefined;
+    ramp(&single, .{ .r = 1, .g = 2, .b = 3 }, .{ .r = 4, .g = 5, .b = 6 });
+    try testing.expectEqual(Rgb.init(1, 2, 3), single[0]);
 }
 
-test "colorWheel generates rainbow" {
-    const w = colorWheel(12);
-    try testing.expect(w[0].r > 0);
-    try testing.expect(w[6].g > 0);
-}
-
-test "multiGradient generates colors" {
-    const stops = [_]RgbColor{
+test "gradient interpolates through every stop" {
+    const stops = [3]Rgb{
         .{ .r = 255, .g = 0, .b = 0 },
         .{ .r = 0, .g = 255, .b = 0 },
         .{ .r = 0, .g = 0, .b = 255 },
     };
-    const g = multiGradient(&stops, 10);
-    try testing.expectEqual(@as(u8, 255), g[0].r);
-    try testing.expect(g[5].g > 0);
+    var buffer: [11]Rgb = undefined;
+    gradient(&buffer, &stops);
+    try testing.expectEqual(stops[0], buffer[0]);
+    try testing.expectEqual(stops[2], buffer[10]);
+    try testing.expectEqual(stops[1], buffer[5]);
+
+    const one = [_]Rgb{.{ .r = 7, .g = 8, .b = 9 }};
+    var repeated: [4]Rgb = undefined;
+    gradient(&repeated, &one);
+    for (repeated) |entry| try testing.expectEqual(one[0], entry);
+
+    var empty: [0]Rgb = .{};
+    gradient(&empty, &one);
 }
 
-pub const ansi88 = generateAnsi88();
+test "hue sweeps the circle" {
+    var buffer: [13]Rgb = undefined;
+    hue(&buffer);
+    try testing.expectEqual(Rgb.init(255, 0, 0), buffer[0]);
+    try testing.expectEqual(Rgb.init(255, 0, 0), buffer[12]);
+    try testing.expect(buffer[3].g > 200);
+    try testing.expect(buffer[6].b > 200);
+    try testing.expect(buffer[9].b > 200);
 
-fn generateAnsi88() [88]AnsiRgb {
-    var palette_arr: [88]AnsiRgb = undefined;
-    // 16 standard colors (indices 0-15)
-    palette_arr[0] = .{ .r = 0, .g = 0, .b = 0 };
-    palette_arr[1] = .{ .r = 170, .g = 0, .b = 0 };
-    palette_arr[2] = .{ .r = 0, .g = 170, .b = 0 };
-    palette_arr[3] = .{ .r = 170, .g = 170, .b = 0 };
-    palette_arr[4] = .{ .r = 0, .g = 0, .b = 170 };
-    palette_arr[5] = .{ .r = 170, .g = 0, .b = 170 };
-    palette_arr[6] = .{ .r = 0, .g = 170, .b = 170 };
-    palette_arr[7] = .{ .r = 170, .g = 170, .b = 170 };
-    palette_arr[8] = .{ .r = 85, .g = 85, .b = 85 };
-    palette_arr[9] = .{ .r = 255, .g = 85, .b = 85 };
-    palette_arr[10] = .{ .r = 85, .g = 255, .b = 85 };
-    palette_arr[11] = .{ .r = 255, .g = 255, .b = 85 };
-    palette_arr[12] = .{ .r = 85, .g = 85, .b = 255 };
-    palette_arr[13] = .{ .r = 255, .g = 85, .b = 255 };
-    palette_arr[14] = .{ .r = 85, .g = 255, .b = 255 };
-    palette_arr[15] = .{ .r = 255, .g = 255, .b = 255 };
-    // 8x8x8 color cube (indices 16-79)
-    comptime var i: u16 = 16;
-    inline while (i < 80) : (i += 1) {
-        const idx = i - 16;
-        const b_val: u8 = @intCast(idx % 8);
-        const g_val: u8 = @intCast((idx / 8) % 8);
-        const r_val: u8 = @intCast(idx / 64);
-        palette_arr[i] = .{
-            .r = if (r_val == 0) 0 else 55 + r_val * 40,
-            .g = if (g_val == 0) 0 else 55 + g_val * 40,
-            .b = if (b_val == 0) 0 else 55 + b_val * 40,
-        };
+    var empty: [0]Rgb = .{};
+    hue(&empty);
+}
+
+test "sequential ramps one hue from light to dark" {
+    var buffer: [9]Rgb = undefined;
+    sequential(&buffer, 210);
+    try testing.expect(buffer[0].toHsl().l > 85);
+    try testing.expect(buffer[8].toHsl().l < 20);
+    for (buffer) |entry| {
+        const h: f64 = @floatFromInt(entry.toHsl().h);
+        try testing.expectApproxEqAbs(@as(f64, 210), h, 1.0);
     }
-    // 8 grayscale ramp (indices 80-87)
-    comptime var j: u16 = 80;
-    inline while (j < 88) : (j += 1) {
-        const gray_val: u8 = @intCast(8 + (j - 80) * 32);
-        palette_arr[j] = .{ .r = gray_val, .g = gray_val, .b = gray_val };
-    }
-    return palette_arr;
+    try testing.expect(isMonotonicLuminance(&[_]Color{
+        .{ .rgb = buffer[0] },
+        .{ .rgb = buffer[4] },
+        .{ .rgb = buffer[8] },
+    }));
 }
 
-pub const ansi88_names = [_][]const u8{
-    "black",        "red",            "green",        "yellow",
-    "blue",         "magenta",        "cyan",         "white",
-    "bright_black", "bright_red",     "bright_green", "bright_yellow",
-    "bright_blue",  "bright_magenta", "bright_cyan",  "bright_white",
-    "cube_0",       "cube_1",         "cube_2",       "cube_3",
-    "cube_4",       "cube_5",         "cube_6",       "cube_7",
-    "cube_8",       "cube_9",         "cube_10",      "cube_11",
-    "cube_12",      "cube_13",        "cube_14",      "cube_15",
-    "cube_16",      "cube_17",        "cube_18",      "cube_19",
-    "cube_20",      "cube_21",        "cube_22",      "cube_23",
-    "cube_24",      "cube_25",        "cube_26",      "cube_27",
-    "cube_28",      "cube_29",        "cube_30",      "cube_31",
-    "cube_32",      "cube_33",        "cube_34",      "cube_35",
-    "cube_36",      "cube_37",        "cube_38",      "cube_39",
-    "cube_40",      "cube_41",        "cube_42",      "cube_43",
-    "cube_44",      "cube_45",        "cube_46",      "cube_47",
-    "cube_48",      "cube_49",        "cube_50",      "cube_51",
-    "cube_52",      "cube_53",        "cube_54",      "cube_55",
-    "cube_56",      "cube_57",        "cube_58",      "cube_59",
-    "cube_60",      "cube_61",        "cube_62",      "cube_63",
-    "gray_0",       "gray_1",         "gray_2",       "gray_3",
-    "gray_4",       "gray_5",         "gray_6",       "gray_7",
-};
+test "diverging is symmetric around a light centre" {
+    var buffer: [9]Rgb = undefined;
+    diverging(&buffer, .{ 0, 220 });
+    try testing.expect(buffer[4].toHsl().l > 85);
+    try testing.expect(buffer[0].toHsl().l < 30);
+    try testing.expect(buffer[8].toHsl().l < 30);
+    try testing.expectApproxEqAbs(@as(f64, 0), @as(f64, @floatFromInt(buffer[0].toHsl().h)), 1.0);
+    try testing.expectApproxEqAbs(@as(f64, 220), @as(f64, @floatFromInt(buffer[8].toHsl().h)), 1.0);
 
-pub fn rgb8(r: u8, g: u8, b: u8) struct { index: u8 } {
-    return .{ .index = 16 + 64 * r + 8 * g + b };
+    var single: [1]Rgb = undefined;
+    diverging(&single, .{ 0, 220 });
+    try testing.expect(single[0].toHsl().l > 50);
 }
 
-pub fn gray88(level: u8) struct { index: u8 } {
-    return .{ .index = 80 + level };
+test "categorical spreads hues evenly" {
+    var buffer: [6]Rgb = undefined;
+    categorical(&buffer);
+    try testing.expectEqual(@as(u16, 0), buffer[0].toHsl().h);
+    try testing.expectEqual(@as(u16, 60), buffer[1].toHsl().h);
+    try testing.expectEqual(@as(u16, 180), buffer[3].toHsl().h);
+
+    var empty: [0]Rgb = .{};
+    categorical(&empty);
 }
 
-test "hueGradient generates rainbow" {
-    const h = hueGradient(12);
-    try testing.expect(h[0].r > 0);
-    try testing.expect(h[6].g > 0);
+test "harmony buffers contain the scheme" {
+    const base = color.rgb(255, 0, 0);
+
+    var one: [1]Color = undefined;
+    try testing.expectEqual(@as(usize, 1), complementary(&one, base).len);
+    try testing.expectEqual(@as(u16, 180), one[0].toHsl().h);
+
+    var three: [3]Color = undefined;
+    try testing.expectEqual(@as(usize, 3), analogous(&three, base).len);
+    try testing.expectEqual(@as(u16, 30), three[0].toHsl().h);
+    try testing.expectEqual(@as(usize, 3), triadic(&three, base).len);
+    try testing.expectEqual(@as(u16, 120), three[1].toHsl().h);
+    try testing.expectEqual(@as(usize, 3), splitComplementary(&three, base).len);
+    try testing.expectEqual(@as(u16, 150), three[1].toHsl().h);
+
+    var four: [4]Color = undefined;
+    try testing.expectEqual(@as(usize, 4), tetradic(&four, base).len);
+    try testing.expectEqual(@as(u16, 270), four[3].toHsl().h);
+
+    var short: [2]Color = undefined;
+    try testing.expectEqual(@as(usize, 2), tetradic(&short, base).len);
+
+    var empty: [0]Color = .{};
+    try testing.expectEqual(@as(usize, 0), triadic(&empty, base).len);
+}
+
+test "readability grades" {
+    const white = color.rgb(255, 255, 255);
+    const black = color.rgb(0, 0, 0);
+    try testing.expectEqual(Readability.aaa, readability(white, black));
+    try testing.expectEqual(Readability.aaa, readability(black, white));
+    try testing.expectEqual(Readability.fail, readability(white, white));
+    try testing.expectEqual(Readability.fail, readability(color.rgb(255, 0, 0), color.rgb(0, 0, 255)));
+}
+
+test "contrast extremes need at least black and white" {
+    const colors = [_]Color{ color.rgb(255, 255, 255), color.rgb(0, 0, 0), color.rgb(255, 0, 0) };
+    try testing.expectApproxEqAbs(@as(f64, 21), maxContrastRatio(&colors), 0.01);
+    try testing.expect(minContrastRatio(&colors) > 1);
+    try testing.expect(minContrastRatio(&colors) < 5);
+}
+
+test "duplicate detection and closest pair" {
+    try testing.expect(hasDuplicates(&[_]Color{ color.rgb(1, 2, 3), color.rgb(1, 2, 3) }));
+    try testing.expect(!hasDuplicates(&[_]Color{ color.rgb(1, 2, 3), color.rgb(1, 2, 4) }));
+    try testing.expect(!hasDuplicates(&[_]Color{color.rgb(1, 2, 3)}));
+    try testing.expect(!hasDuplicates(&[_]Color{}));
+
+    const colors = [_]Color{ color.rgb(255, 0, 0), color.rgb(250, 10, 10), color.rgb(0, 0, 255) };
+    const closest = closestPair(&colors);
+    try testing.expect(closest < color.rgb(255, 0, 0).deltaE2000(color.rgb(0, 0, 255)));
+    try testing.expect(closest > 0);
+}
+
+test "monotonic luminance" {
+    var dark_to_light: [4]Rgb = undefined;
+    ramp(&dark_to_light, Rgb.black, Rgb.white);
+    const as_colors = [_]Color{
+        .{ .rgb = dark_to_light[0] },
+        .{ .rgb = dark_to_light[1] },
+        .{ .rgb = dark_to_light[2] },
+        .{ .rgb = dark_to_light[3] },
+    };
+    try testing.expect(isMonotonicLuminance(&as_colors));
+
+    const reversed = [_]Color{ as_colors[3], as_colors[2], as_colors[1], as_colors[0] };
+    try testing.expect(isMonotonicLuminance(&reversed));
+
+    const zigzag = [_]Color{ as_colors[0], as_colors[3], as_colors[1], as_colors[2] };
+    try testing.expect(!isMonotonicLuminance(&zigzag));
+    try testing.expect(isMonotonicLuminance(&[_]Color{}));
+    try testing.expect(isMonotonicLuminance(&[_]Color{color.red}));
+}
+
+test {
+    testing.refAllDecls(@This());
 }

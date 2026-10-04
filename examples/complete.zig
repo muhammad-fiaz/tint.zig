@@ -2,129 +2,87 @@ const std = @import("std");
 const tint = @import("tint");
 
 pub fn main() void {
-    std.debug.print("=== tint.zig Complete Demo ===\n\n", .{});
+    const reset = tint.ansi.reset.all;
+    std.debug.print("=== tint.zig {s} on Zig {s} ===\n\n", .{ tint.version, tint.minimumZigVersion });
 
-    // Standard ANSI colors
-    std.debug.print("--- ANSI 4-Bit Colors ---\n", .{});
-    std.debug.print("{s}Red{s} {s}Green{s} {s}Blue{s}\n", .{
-        tint.fg(.{ .ansi4 = .red }),   tint.reset,
-        tint.fg(.{ .ansi4 = .green }), tint.reset,
-        tint.fg(.{ .ansi4 = .blue }),  tint.reset,
-    });
-
-    // Bright colors
-    std.debug.print("\n--- Bright Colors ---\n", .{});
-    std.debug.print("{s}Bright Red{s} {s}Bright Green{s} {s}Bright Blue{s}\n", .{
-        tint.fg(.{ .ansi4 = .bright_red }),   tint.reset,
-        tint.fg(.{ .ansi4 = .bright_green }), tint.reset,
-        tint.fg(.{ .ansi4 = .bright_blue }),  tint.reset,
-    });
-
-    // ANSI 256
-    std.debug.print("\n--- ANSI 256 Colors ---\n", .{});
-    std.debug.print("{s}Orange (208){s} {s}Purple (129){s} {s}Teal (49){s}\n", .{
-        tint.fg(tint.ansi256(208)), tint.reset,
-        tint.fg(tint.ansi256(129)), tint.reset,
-        tint.fg(tint.ansi256(49)),  tint.reset,
-    });
-
-    // RGB
-    std.debug.print("\n--- RGB / TrueColor ---\n", .{});
-    std.debug.print("{s}Custom RGB (255,100,20){s}\n", .{
-        tint.fg(tint.rgb(255, 100, 20)),
-        tint.reset,
-    });
-
-    // HEX
-    std.debug.print("\n--- HEX Colors ---\n", .{});
-    std.debug.print("{s}#7C3AED{s} {s}#06B6D4{s}\n", .{
-        tint.fg(tint.hex(0x7C3AED)), tint.reset,
-        tint.fg(tint.hex(0x06B6D4)), tint.reset,
-    });
-
-    // Foreground and background
-    std.debug.print("\n--- Foreground & Background ---\n", .{});
-    std.debug.print("{s}{s}White on Blue{s}\n", .{
-        tint.fg(.{ .ansi4 = .white }),
-        tint.bg(.{ .ansi4 = .blue }),
-        tint.reset,
-    });
-
-    // Underline colors
-    std.debug.print("\n--- Underline Colors ---\n", .{});
-    std.debug.print("{s}{s}Custom underline{s}\n", .{
-        tint.fg(.{ .ansi4 = .white }),
-        tint.underline(tint.rgb(255, 100, 20)),
-        tint.reset,
-    });
-
-    // Text attributes
-    std.debug.print("\n--- Text Attributes ---\n", .{});
-    std.debug.print("{s}{s}Bold{s} {s}{s}Italic{s} {s}{s}Underline{s} {s}{s}Strikethrough{s}\n", .{
-        tint.style(.{ .bold = true }).toAnsi(),          "", tint.reset,
-        tint.style(.{ .italic = true }).toAnsi(),        "", tint.reset,
-        tint.style(.{ .underline = true }).toAnsi(),     "", tint.reset,
-        tint.style(.{ .strikethrough = true }).toAnsi(), "", tint.reset,
-    });
-
-    // Combined styles
-    std.debug.print("\n--- Combined Styles ---\n", .{});
-    std.debug.print("{s}{s}{s}{s}Bold Italic Underline Cyan{s}\n", .{
-        tint.style(.{ .bold = true }).toAnsi(),
-        tint.style(.{ .italic = true }).toAnsi(),
-        tint.style(.{ .underline = true }).toAnsi(),
-        tint.fg(.{ .ansi4 = .cyan }),
-        tint.reset,
-    });
-
-    // Named colors
-    std.debug.print("\n--- Named Colors ---\n", .{});
-    const coral = tint.Named.coral;
-    const teal = tint.Named.teal;
-    const gold = tint.Named.gold;
-    std.debug.print("{s}Coral{s} ", .{ tint.fg(.{ .rgb = coral }), tint.reset });
-    std.debug.print("{s}Teal{s} ", .{ tint.fg(.{ .rgb = teal }), tint.reset });
-    std.debug.print("{s}Gold{s}\n", .{ tint.fg(.{ .rgb = gold }), tint.reset });
-
-    // Custom theme
-    std.debug.print("\n--- Custom Theme ---\n", .{});
-    const theme = tint.Theme{
-        .name = "demo",
-        .primary = tint.hex(0x7C3AED),
-        .secondary = tint.hex(0x06B6D4),
-        .success = tint.hex(0x22C55E),
-        .warning = tint.hex(0xF59E0B),
-        .err = tint.hex(0xEF4444),
-        .info = tint.hex(0x3B82F6),
-        .text = tint.hex(0xE5E7EB),
-        .muted = tint.hex(0x6B7280),
-        .background = tint.hex(0x1F2937),
-        .surface = tint.hex(0x374151),
+    std.debug.print("--- Colours ---\n", .{});
+    const models = .{
+        tint.color.ansi4.red,
+        tint.color.ansi256.rgb(5, 0, 0),
+        tint.color.rgb(255, 100, 20),
+        tint.color.hex(0x7C3AED),
+        tint.color.hsl(120, 80, 45),
+        tint.color.hsv(280, 70, 90),
+        tint.color.cmyk(0, 100, 100, 0),
+        tint.color.kelvin(2700),
+        tint.color.mediumPurple,
     };
+    inline for (models) |c| {
+        std.debug.print("{s}##{s} ", .{ c.fg().slice(), reset });
+    }
+    std.debug.print("\n", .{});
 
-    std.debug.print("{s}Primary: {s}########{s}\n", .{ tint.fg(theme.primary), tint.bg(theme.primary), tint.reset });
-    std.debug.print("{s}Error: {s}########{s}\n", .{ tint.fg(theme.err), tint.bg(theme.err), tint.reset });
-
-    // Style composition
-    std.debug.print("\n--- Style Composition ---\n", .{});
-    const error_style = tint.style(.{
-        .fg = theme.err,
-        .bold = true,
+    std.debug.print("\n--- Layers ---\n", .{});
+    std.debug.print("{s}fg{s} {s}{s}underline{s} {s}on bg{s}\n", .{
+        tint.color.hex(0xFF6600).fg().slice(), reset,
+        tint.color.white.fg().slice(),         tint.color.hex(0xFF6600).underline().slice(),
+        reset,                                 tint.color.hex(0x1A1A2E).bg().slice(),
+        reset,
     });
-    std.debug.print("{s}This is an error message{s}\n", .{ error_style.toAnsi(), tint.reset });
 
-    // Reset codes
-    std.debug.print("\n--- Reset Codes ---\n", .{});
-    std.debug.print("{s}Full reset: {s}\n", .{ tint.style(.{ .bold = true }).toAnsi(), tint.reset });
+    std.debug.print("\n--- Styles ---\n", .{});
+    std.debug.print("{s}bold{s} {s}italic{s} {s}underline{s} {s}strike{s} {s}overline{s}\n", .{
+        tint.style.bold.toAnsi().slice(),          reset,
+        tint.style.italic.toAnsi().slice(),        reset,
+        tint.style.underline.toAnsi().slice(),     reset,
+        tint.style.strikethrough.toAnsi().slice(), reset,
+        tint.style.overline.toAnsi().slice(),      reset,
+    });
 
-    // Color manipulation
-    std.debug.print("\n--- Color Manipulation ---\n", .{});
-    const base_color = tint.rgb(100, 150, 200);
-    std.debug.print("{s}Original{s}\n", .{ tint.fg(base_color), tint.reset });
-    std.debug.print("{s}Lightened{s}\n", .{ tint.fg(base_color.lighten(0.3)), tint.reset });
-    std.debug.print("{s}Darkened{s}\n", .{ tint.fg(base_color.darken(0.3)), tint.reset });
-    std.debug.print("{s}Inverted{s}\n", .{ tint.fg(base_color.invert()), tint.reset });
-    std.debug.print("{s}Grayscale{s}\n", .{ tint.fg(base_color.grayscale()), tint.reset });
+    std.debug.print("\n--- Presets and composition ---\n", .{});
+    std.debug.print("{s}error{s} {s}warning{s} {s}success{s} {s}info{s}\n", .{
+        tint.style.err(tint.color.red).toAnsi().slice(),        reset,
+        tint.style.warning(tint.color.yellow).toAnsi().slice(), reset,
+        tint.style.success(tint.color.green).toAnsi().slice(),  reset,
+        tint.style.info(tint.color.cyan).toAnsi().slice(),      reset,
+    });
 
-    std.debug.print("\n=== Demo Complete ===\n", .{});
+    std.debug.print("\n--- Manipulation ---\n", .{});
+    const base = tint.color.rgb(100, 150, 200);
+    inline for (.{
+        base,               base.lighten(0.3), base.darken(0.3),
+        base.saturate(0.3), base.invert(),     base.grayscale(),
+    }) |c| {
+        std.debug.print("{s}##{s} ", .{ c.fg().slice(), reset });
+    }
+    std.debug.print("\n", .{});
+
+    std.debug.print("\n--- Analysis ---\n", .{});
+    std.debug.print("white/black contrast {d:.2}:1\n", .{tint.color.white.contrastRatio(tint.color.black)});
+    std.debug.print("red to blue {d:.2} CIEDE2000\n", .{tint.color.red.deltaE2000(tint.color.blue)});
+
+    std.debug.print("\n--- Palettes ---\n", .{});
+    std.debug.print("ansi16[1] rgb({d}, {d}, {d})\n", .{
+        tint.palette.ansi16[1].r, tint.palette.ansi16[1].g, tint.palette.ansi16[1].b,
+    });
+    std.debug.print("ansi88[79] rgb({d}, {d}, {d})\n", .{
+        tint.palette.ansi88[79].r, tint.palette.ansi88[79].g, tint.palette.ansi88[79].b,
+    });
+    var gradient: [24]tint.color.Rgb = undefined;
+    tint.palette.ramp(&gradient, tint.color.red.toRgb(), tint.color.blue.toRgb());
+    for (gradient) |entry| {
+        std.debug.print("{s}#{s}", .{ tint.color.fromRgb(entry).fg().slice(), reset });
+    }
+    std.debug.print("\n", .{});
+
+    std.debug.print("\n--- Themes ({d}) ---\n", .{tint.theme.all.len});
+    for ([_]tint.theme.Theme{ tint.theme.dark, tint.theme.tokyoNight }) |theme| {
+        std.debug.print("{s:<12} {s}primary{s} {s}err{s}\n", .{
+            theme.name,
+            theme.role(.primary).fg().slice(),
+            reset,
+            theme.role(.err).fg().slice(),
+            reset,
+        });
+    }
 }

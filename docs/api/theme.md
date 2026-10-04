@@ -1,8 +1,14 @@
+---
+title: Theme API
+description: "Theme API reference: Theme values, semantic roles, built-in themes, custom themes and contrast validation."
+keywords: "zig theme api, terminal theme, semantic roles, theme contrast validation"
+---
+
 # Theme API
 
-## Types
+## Theme
 
-### Theme
+A named set of semantic colors. `err` is used because `error` is a Zig primitive type name:
 
 ```zig
 pub const Theme = struct {
@@ -11,7 +17,7 @@ pub const Theme = struct {
     secondary: Color,
     success: Color,
     warning: Color,
-    err: Color,        // Note: "err" not "error" (reserved keyword in Zig)
+    err: Color,
     info: Color,
     text: Color,
     muted: Color,
@@ -20,112 +26,41 @@ pub const Theme = struct {
 };
 ```
 
-## Functions
+## Construction
 
-### Theme.init
-
-```zig
-pub fn init(
-    name: []const u8,
-    primary: Color,
-    secondary: Color,
-    success: Color,
-    warning: Color,
-    err: Color,
-    info: Color,
-    text: Color,
-    muted: Color,
-) Theme
-```
-
-Creates a new Theme with the given colors. `background` defaults to `text`, `surface` defaults to `muted`.
-
-### Theme.initWithBackground
+`Theme.create` takes an options struct. `background` and `surface` are optional and fall back to `text` and `muted`, though every built-in theme ships explicit values:
 
 ```zig
-pub fn initWithBackground(
-    name: []const u8,
-    primary: Color,
-    secondary: Color,
-    success: Color,
-    warning: Color,
-    err: Color,
-    info: Color,
-    text: Color,
-    muted: Color,
-    background: Color,
-    surface: Color,
-) Theme
+tint.theme.Theme.create("custom", .{
+    .primary = ..., .secondary = ..., .success = ..., .warning = ...,
+    .err = ..., .info = ..., .text = ..., .muted = ...,
+    .background = ...,
+    .surface = ...,
+});
 ```
-
-Creates a new Theme with explicit `background` and `surface` colors.
 
 ## Built-in Themes
 
-### dark_theme
+Seventeen themes with camelCase identifiers matching their `name` fields; `all` holds every one for iteration:
 
-Default dark theme with indigo primary, green success, red error.
+```zig
+tint.theme.dark; tint.theme.light; tint.theme.dracula; tint.theme.nord;
+tint.theme.monokai; tint.theme.tokyoNight; tint.theme.gruvbox;
+tint.theme.solarized; tint.theme.rosePine; tint.theme.catppuccin;
+tint.theme.github; tint.theme.oneDark; tint.theme.material;
+tint.theme.palenight; tint.theme.everforest; tint.theme.kanagawa;
+tint.theme.cyberdream; tint.theme.all;
+```
 
-### light_theme
+## Roles and Validation
 
-Default light theme.
+`role` reads any of the ten semantic roles. `styled` turns a role into a foreground style. `contrast` and `readability` score a pair, and `meets` requires every foreground role to pass a grade against the background:
 
-### dracula_theme
-
-Dracula color scheme.
-
-### nord_theme
-
-Nord color scheme.
-
-### monokai_theme
-
-Monokai color scheme.
-
-### tokyo_night_theme
-
-Tokyo Night color scheme.
-
-### gruvbox_theme
-
-Gruvbox color scheme.
-
-### solarized_theme
-
-Solarized color scheme.
-
-### rose_pine_theme
-
-Rose Pine color scheme.
-
-### catppuccin_theme
-
-Catppuccin color scheme.
-
-### github_theme
-
-GitHub color scheme.
-
-### one_dark_theme
-
-One Dark color scheme.
-
-### material_theme
-
-Material color scheme.
-
-### palenight_theme
-
-Palenight color scheme.
-
-### everforest_theme
-
-Everforest color scheme.
-
-### kanagawa_theme
-
-Kanagawa color scheme.
-
-### cyberdream_theme
-
-Cyberdream color scheme.
+```zig
+tint.theme.Role;
+theme.role(.primary);
+theme.styled(.err);
+theme.contrast(.text, .background);
+theme.readability(.muted, .background);
+theme.meets(.aa);
+```

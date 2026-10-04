@@ -2,42 +2,52 @@ const std = @import("std");
 const tint = @import("tint");
 
 pub fn main() void {
-    // Using built-in themes
-    std.debug.print("=== Dark Theme ===\n", .{});
-    const dark = tint.themes.dark_theme;
-    std.debug.print("{s}Primary{s}\n", .{ tint.fg(dark.primary), tint.reset });
-    std.debug.print("{s}Secondary{s}\n", .{ tint.fg(dark.secondary), tint.reset });
-    std.debug.print("{s}Success{s}\n", .{ tint.fg(dark.success), tint.reset });
-    std.debug.print("{s}Warning{s}\n", .{ tint.fg(dark.warning), tint.reset });
-    std.debug.print("{s}Error{s}\n", .{ tint.fg(dark.err), tint.reset });
-    std.debug.print("{s}Info{s}\n", .{ tint.fg(dark.info), tint.reset });
-    std.debug.print("{s}Muted{s}\n", .{ tint.fg(dark.muted), tint.reset });
+    const reset = tint.ansi.reset.all;
 
-    // Custom theme
-    std.debug.print("\n=== Custom Theme ===\n", .{});
-    const custom = tint.Theme{
-        .name = "custom",
-        .primary = tint.hex(0x6366F1),
-        .secondary = tint.hex(0x8B5CF6),
-        .success = tint.hex(0x10B981),
-        .warning = tint.hex(0xF59E0B),
-        .err = tint.hex(0xEF4444),
-        .info = tint.hex(0x3B82F6),
-        .text = tint.hex(0xE5E7EB),
-        .muted = tint.hex(0x6B7280),
-        .background = tint.hex(0x1F2937),
-        .surface = tint.hex(0x374151),
-    };
-    std.debug.print("{s}Custom Primary{s}\n", .{ tint.fg(custom.primary), tint.reset });
-    std.debug.print("{s}Custom Error{s}\n", .{ tint.fg(custom.err), tint.reset });
+    std.debug.print("=== Every built-in theme ===\n\n", .{});
+    for (tint.theme.all) |theme| {
+        std.debug.print("  {s}\n", .{theme.name});
+        for ([_]tint.theme.Role{ .primary, .secondary, .success, .warning, .err, .info }) |role| {
+            std.debug.print("    {s}## {s:<10}{s} contrast {d:>5.2}\n", .{
+                theme.role(role).fg().slice(),     @tagName(role), reset,
+                theme.contrast(role, .background),
+            });
+        }
+        std.debug.print("\n", .{});
+    }
 
-    // Theme switching (explicit data selection)
-    std.debug.print("\n=== Theme Switching ===\n", .{});
-    var use_dark = true;
-    var active_theme = if (use_dark) dark else custom;
-    std.debug.print("{s}Active: Primary{s}\n", .{ tint.fg(active_theme.primary), tint.reset });
+    std.debug.print("=== A custom theme ===\n", .{});
+    const custom = tint.theme.Theme.create("custom", .{
+        .primary = tint.color.hex(0x6366F1),
+        .secondary = tint.color.hex(0x8B5CF6),
+        .success = tint.color.hex(0x10B981),
+        .warning = tint.color.hex(0xF59E0B),
+        .err = tint.color.hex(0xEF4444),
+        .info = tint.color.hex(0x3B82F6),
+        .text = tint.color.hex(0xE5E7EB),
+        .muted = tint.color.hex(0x6B7280),
+        .background = tint.color.hex(0x1F2937),
+        .surface = tint.color.hex(0x374151),
+    });
+    std.debug.print("{s}## custom primary{s}\n", .{ custom.role(.primary).fg().slice(), reset });
+    std.debug.print("{s}## custom err{s}\n", .{ custom.role(.err).fg().slice(), reset });
 
-    use_dark = false;
-    active_theme = if (use_dark) dark else custom;
-    std.debug.print("{s}Switched: Primary{s}\n", .{ tint.fg(active_theme.primary), tint.reset });
+    std.debug.print("\n=== Themes as message styles ===\n", .{});
+    for ([_]tint.theme.Theme{ tint.theme.tokyoNight, tint.theme.dracula }) |theme| {
+        const errStyle = theme.styled(.err).merge(tint.style.bold);
+        std.debug.print("{s}error in {s}{s}\n", .{ errStyle.toAnsi().slice(), theme.name, reset });
+        std.debug.print("{s}muted in {s}{s}\n", .{
+            theme.styled(.muted).toAnsi().slice(), theme.name, reset,
+        });
+    }
+
+    std.debug.print("\n=== Readability grades ===\n", .{});
+    for ([_]tint.theme.Theme{ tint.theme.dark, tint.theme.light }) |theme| {
+        std.debug.print("  {s}: text={s} muted={s} err={s}\n", .{
+            theme.name,
+            @tagName(theme.readability(.text, .background)),
+            @tagName(theme.readability(.muted, .background)),
+            @tagName(theme.readability(.err, .background)),
+        });
+    }
 }
